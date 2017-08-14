@@ -27,12 +27,17 @@ GL2Tab.conv <- function(x,Loci,Loci.Grp) {
 
     # Assumptions for DRB345
     if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
+
+      DRB345.zygosity(i,Calls[grep("DRB",Calls)])
+
       if(length(getCalls)>1) {
         # For Heterzygous DRB345
+
         Tab[1,grep(i,colnames(Tab))] <- Calls[getCalls]
       } else {
         # For possible homozygoues DRB345
-        DRB345.zygosity(i,Calls[grep("DRB",Calls)])
+
+
 
         Tab[1,grep(i,colnames(Tab))[1]] <- Calls[getCalls]
       }
