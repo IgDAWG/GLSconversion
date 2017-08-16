@@ -8,7 +8,7 @@
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Check Logical Flag unusual DR haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLS.Convert <- function(Data,Conv="GL2Tab",Output="pypop",System="HLA",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L) {
+GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L) {
 
   # All input files must be tab delimited text files of unamibugous HLA data.
   # All genotype calls should be formatted as loci*allele format (e.g., HLA-A*01:01:01:01)

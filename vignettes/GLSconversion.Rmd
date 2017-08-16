@@ -1,0 +1,64 @@
+---
+title: "GLSconversion"
+author: "Derek Pappas, Ph.D. (dpappas@chori.org)"
+date: "August 16, 2017"
+output: rmarkdown::html_vignette
+---
+
+## Overview
+
+Tools for cross converting HLA or KIR genotyping data from texts strings to multi-column table format as desribed in Milius RP, Mack SJ, Hollenbach JA, et al. 2013. Genotype List String: a grammar for describing HLA and KIR genotyping results in a text string. [Tissue Antigens. 82:106-112](http://www.ncbi.nlm.nih.gov/pubmed/23849068). 
+
+## Input Data
+
+Data for GLSconversoin must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names either the GL string or the loci for the genotype data. The first two columns may contain any information, but generally includes at least the sample id. Data may be passed to GLSconversion as a text file name and it is recommended to use the full file path. Data may also be passed to GLSconversion as an R object (data frame) conforming to the same data structure as a text file.  
+
+_**GL String to Table**_  
+A typical File for GL string to column table format is **three** columns wide.
+
+|SubjectID |Exp ID  |   GLString                                    |
+|----------|:------:|:---------------------------------------------:|
+|subject1  |Center1 |HLA-A\*01:01+HLA-A\*02:01\^HLA-B\*08:01+HLA-B\*44:02\^HLA-DRB1\*01:01+HLA-DRB1\*03:01 |
+
+
+_**Table to GL Strong**_  
+There is no limit on column number for converting to GL strings, however it should be at least an even number. Two columns for misc information and column pairs for each locus pair. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use '_1', '.1','_2','.2' to distinguish each locus pair. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions.
+
+|SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DRB3  | DRB3  |
+|----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+|subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |03:01  |       |       |
+
+
+**Homozygosity**  
+Homozygous allele calls for non-DRB345 alleles can be represented as single alleles in the GL string. For example, HLA-A\*01:01:01:01 + HLA-A\*01:01:01:01 can be written as HLA-A*01:01:01:01.  
+
+**HLA-DRB3, HLA-DRB4, and HLA-DRB5**  
+For HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)). If you wish to define your own zygosity, it is suggested you split them into separate pairs of columns for each locus manually.  
+
+## Data Output
+
+Data can be output as either a text file (written as a tab or comma delimitted) or R object (sent to data frame). See Output parameters below.  
+
+
+## Parameters
+
+`GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L)`
+
+**Data**
+
+Class: String. No Default. Required.
+
+e.g., Data="foo.txt" -or- Data=foo
+
+Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting.  
+
+**Output**
+
+Class: String. Options: "R" or "txt" or "csv" or "pypop" (Default = "txt").
+
+Specifies the type of output for the converted genotypes. For file writting, if you specified the full path for a file name then the resultant file will be written to same path. Otherwise it will be written to whichever working directory you defined. For outputting as R object, this will require an assignment to some object (see examples below).
+
+**System**
+
+Class: String. Options: "HLA" or "KIR" (Default="HLA").
+
