@@ -1,11 +1,19 @@
 Package: GLSconversion
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
-Encoding: UTF-8
-LazyData: true
+Title: Genotype List String Conversion
+Version: 1.0
+Date: 2017-08-16
+Author: Derek Pappas <dpappas@chori.org>, Steve Mack <sjmack@chori.org>
+Maintainer: Steve Mack <sjmack@chori.org>
+URL: http://tools.immunogenomics.org/
+Description: Conversion tool.
+License: GPL (>= 3)
+LazyData: True
+Depends:
+    R (>= 3.3.2)
+Imports:
+    parallel,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
