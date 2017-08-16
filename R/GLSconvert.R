@@ -4,10 +4,11 @@
 #' @param Data String File name or data frame.
 #' @param Conv String Direction for conversion.
 #' @param Output String Type of output.
+#' @param System String Genetic system (HLA or KIR) of the data being converted
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Check Logical Flag unusual DR haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLS.Convert <- function(Data,Conv="GL2Tab",Output="pypop",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L) {
+GLS.Convert <- function(Data,Conv="GL2Tab",Output="pypop",System="HLA",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L) {
 
   # All input files must be tab delimited text files of unamibugous HLA data.
   # All genotype calls should be formatted as loci*allele format (e.g., HLA-A*01:01:01:01)
@@ -44,15 +45,20 @@ GLS.Convert <- function(Data,Conv="GL2Tab",Output="pypop",HZY.Red=TRUE,DRB345.Ch
     } else { Cores <- Cores.Lim }
   } else { Cores <- Cores.Lim }
 
+  # Nomenclature system
+  if( System == "HLA" ) { System <- "HLA-" }
 
+  # Read in Data
   if(is.character(Data)) {
     df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
   } else { df <- Data }
 
+  # Run Conversion
   switch(Conv,
-         GL2Tab = { data.out <- GL2Tab.conv(df,DRB345.Check,Cores.Lim) } ,
-         Tab2GL = { data.out <- TAB2GL.conv(df,HZY.Red,Output,Cores.Lim) } )
+         GL2Tab = { data.out <- GL2Tab.conv(df,System,DRB345.Check,Cores.Lim) } ,
+         Tab2GL = { data.out <- TAB2GL.conv(df,System,HZY.Red,Output,Cores.Lim) } )
 
+  # Output converted file
   switch(Output,
          R = return(data.out),
          txt = write.table(data.out,file="Converted.txt",sep="\t",quote=F,col.names=T,row.names=F),
