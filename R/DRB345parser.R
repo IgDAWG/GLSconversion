@@ -1,7 +1,8 @@
 #' DRB345 haplotype zygosity checker
 #'
 #' Checks DR haplotypes for correct zygosity and flags unanticipated haplotypes
-#' @param x Row of data set data frame following DRB345 parsing
+#' @param Locus Locus of interest to test for consistency
+#' @param Genotype Row of data set data frame following DRB345 parsing
 #' @note This function is for internal BIGDAWG use only.
 DRB345.zygosity <- function(Locus,Genotype) {
 

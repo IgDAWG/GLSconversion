@@ -26,7 +26,7 @@ Tab2GL.conv <- function(df,System,HZY.Red,DRB345.Flag,Cores) {
 
   # Run Conversion
   df.list <- lapply(seq(1,nrow(df)),FUN= function(i) df[i,3:ncol(df)])
-  GL <- mclapply(df.list,FUN=Tab2GL,System=System,HZY.Red=HZY.Red,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
+  GL <- parallel::mclapply(df.list,FUN=Tab2GL,System=System,HZY.Red=HZY.Red,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
   GL <- do.call(rbind,GL)
   colnames(GL) <- "GL.String"
   GL <- cbind(df[,1:2],GL)
@@ -61,8 +61,8 @@ Tab2GL <- function(x,System,HZY.Red,DRB345.Flag) {
           DRB.GTYPE[grepl("\\^",DRB.GTYPE)] <- NA
           if(DRB.GTYPE$Flag) {
             DRB.GTYPE <- paste(DRB.GTYPE,"!",sep="")
-            A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2']
-          } else { A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2'] }
+            A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2'] # DRB345 is not consistent
+          } else { A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2'] } # DRB345 is consistent
       }
     }
 

@@ -5,7 +5,8 @@ Version: 1.0
 Date: 2017-08-16
 Author: Derek Pappas <dpappas@chori.org>, Steve Mack <sjmack@chori.org>
 Maintainer: Steve Mack <sjmack@chori.org>
-URL: http://tools.immunogenomics.org/
+URL: http://tools.immunogenomics.org/ ; https://github.com/IgDAWG/GLSconvert
+BugReports: https://github.com/IgDAWG/GLSconvert/issues
 Description: Conversion tool.
 License: GPL (>= 3)
 LazyData: True

@@ -3,6 +3,10 @@ title: "GLSconvert"
 author: "Derek Pappas, Ph.D. (dpappas@chori.org)"
 date: "August 16, 2017"
 output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using GLSconvert}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ## Overview
@@ -11,7 +15,7 @@ Tools for cross converting HLA or KIR genotyping data from text strings to multi
 
 ### Input Data
 
-Data for GLSconvert must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names for the GL string or the loci for the genotype data. The first two columns may contain any information, but generally includes at least the sample id. Data may be passed to GLSconvert as a text file name (full path recommended). Data may also be passed to GLSconvert as an R object (data frame) conforming to the same data structure as a text file.  
+Data for GLSconvert must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names for the GL string or the loci for the genotype data. The first two columns may contain any information, but generally includes at least the sample id. Data may be passed to GLSconvert as a text file name (full path recommended). Data may also be passed to GLSconvert as a R object (data frame) conforming to the same data structure as a text file.  
 
 _**GL String to Table**_  
 A typical file for GL string to column table conversion is **three** columns wide. More than three columns will be flagged for inconsistent formatting.
@@ -37,30 +41,30 @@ HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status 
 
 ## Data Output
 
-Data can be output as either a text file (written as a tab or comma delimitted) or R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome.
+Data can be output as either a text file (written as tab or comma delimitted) or a R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome.
 
 
 ## Parameters
 
-`GLS.Convert(Data,Conv,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L)`
+`GLS.Convert(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L)`
 
 **Data**
 
 Class: String/Object. (No Default).
 
-e.g., Data="foo.txt" -or- Data=foo
+e.g., Data="/your/path/to/file/foo.txt" -or- Data="foo.txt" -or- Data=foo
 
-Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting. This parameter is required for the conversion utility.  
+Specifies data file name or data object. File name is either full file name path to specify file location (recommended) or name of file within a set working directory. See Data Input section for details about file formatting. **This parameter is required for the conversion utility.**  
 
-**Conv**
+**Convert**
 
-Class: String. Options: "GL2Tab" or "Tab2GL" (No Default).
+Class: String. Options: "GL2Tab" -or- "Tab2GL" (No Default).
 
-Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting. This parameter is required for the conversion utility.
+Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting. **This parameter is required for the conversion utility.**  
 
 **Output**
 
-Class: String. Options: "R" or "txt" or "csv" or "pypop" (Default = "txt").
+Class: String. Options: "R" -or- "txt" -or- "csv" -or- "pypop" (Default = "txt").
 
 Specifies the type of output for the converted genotypes. For file writting, if you specified the full path for a file name then the resultant file will be written to the same path. Otherwise the file will be written to whichever working directory was defined at initiation of conversion. To output as R object will require an assignment to some object (see examples below).
 
@@ -92,7 +96,7 @@ install.packages("GLSconvert")
 # Run the a GL2Tab conversion on a data file with default output to text file
 GLSconvert(Data="/your/path/to/file/foo.txt", conv="GL2Tab")
 
-# Run the a Tab2GL conversion on an R object outputting to an R object
+# Run the a Tab2GL conversion on a R object outputting to a R object
 foo.tab <- GLSconvert(Data=foo, conv="Tab2GL")
 
 # Run the a Tab2GL conversion on a text file outputting to a csv file

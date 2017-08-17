@@ -15,14 +15,14 @@ GL2Tab.conv <- function(df,System,DRB345.Flag,Cores) {
   if( ncol(df)!= 3 ) { stop("Your data is not properly formatted for the GL2Tab parameter. Conversion stopped.",call.=F) }
 
   # Run Conversion
-  Tab <- mclapply(df[,3],FUN=GL2Tab,System=System,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
+  Tab <- parallel::mclapply(df[,3],FUN=GL2Tab,System=System,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
     Loci <- sort(unique(gsub("_1|_2","",unlist(lapply(Tab,colnames)))))
     Loci.Grp <- rep(Loci,each=2)
     Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)) ; colnames(Out) <- Loci.Grp
     colnames(Out)[seq(1,length(Loci.Grp),by=2)] <- paste(Loci,"_1",sep="")
     colnames(Out)[seq(2,length(Loci.Grp),by=2)] <- paste(Loci,"_2",sep="")
 
-  Tab <- mclapply(Tab,FUN=format.Tab,Out=Out,mc.cores=Cores)
+  Tab <- parallel::mclapply(Tab,FUN=Format.Tab,Out=Out,mc.cores=Cores)
     Tab <- do.call(rbind,Tab)
     Tab[Tab==0] <- ""
     Tab[grepl("\\^",Tab)] <- ""
@@ -91,8 +91,7 @@ GL2Tab <- function(x,System,DRB345.Flag) {
 #' Correctly orders the expanded GL string
 #' @param x Single row of converted GL string
 #' @param Out Single row data frame for mapping converted GL strings
-#' @note This function is for internal BIGDAWG use only.
-format.Tab <- function(x,Out) {
+Format.Tab <- function(x,Out) {
 
   Out[,match(colnames(x),colnames(Out))] <- x
   return(Out)

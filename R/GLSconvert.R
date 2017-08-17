@@ -2,16 +2,15 @@
 #'
 #' Main Workhorse wrapper for cross converting columnar table to GL string representaion.
 #' @param Data String File name or data frame.
-#' @param Conv String Direction for conversion.
+#' @param Convert String Direction for conversion.
 #' @param Output String Type of output.
 #' @param System String Genetic system (HLA or KIR) of the data being converted
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L) {
+GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L) {
 
   # MultiCore Limitations
-  library(parallel)
   if (Cores.Lim!=1L) {
     Cores.Max <- as.integer( floor( parallel::detectCores() * 0.9) )
     if(Sys.info()['sysname']=="Windows" && as.numeric(Cores.Lim)>1) {
@@ -33,7 +32,7 @@ GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=FAL
   } else { df <- Data ; fileName <- "Converted.txt" }
 
   # Run Conversion
-  switch(Conv,
+  switch(Convert,
          GL2Tab = { data.out <- GL2Tab.conv(df,System,DRB345.Flag,Cores) } ,
          Tab2GL = { data.out <- Tab2GL.conv(df,System,HZY.Red,DRB345.Flag,Cores) } )
 
