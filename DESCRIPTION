@@ -1,6 +1,6 @@
-Package: GLSconversion
+Package: GLSconvert
 Type: Package
-Title: Genotype List String Conversion
+Title: Genotype List String Cross Conversion Tool
 Version: 1.0
 Date: 2017-08-16
 Author: Derek Pappas <dpappas@chori.org>, Steve Mack <sjmack@chori.org>

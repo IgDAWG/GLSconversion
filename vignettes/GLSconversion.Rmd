@@ -1,5 +1,5 @@
 ---
-title: "GLSconversion"
+title: "GLSconvert"
 author: "Derek Pappas, Ph.D. (dpappas@chori.org)"
 date: "August 16, 2017"
 output: rmarkdown::html_vignette
@@ -7,22 +7,22 @@ output: rmarkdown::html_vignette
 
 ## Overview
 
-Tools for cross converting HLA or KIR genotyping data from texts strings to multi-column table format as desribed in Milius RP, Mack SJ, Hollenbach JA, et al. 2013. Genotype List String: a grammar for describing HLA and KIR genotyping results in a text string. [Tissue Antigens. 82:106-112](http://www.ncbi.nlm.nih.gov/pubmed/23849068). 
+Tools for cross converting HLA or KIR genotyping data from text strings to multi-column table format as desribed in Milius RP, Mack SJ, Hollenbach JA, et al. 2013. Genotype List String: a grammar for describing HLA and KIR genotyping results in a text string. [Tissue Antigens. 82:106-112](http://www.ncbi.nlm.nih.gov/pubmed/23849068). 
 
-## Input Data
+### Input Data
 
-Data for GLSconversoin must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names either the GL string or the loci for the genotype data. The first two columns may contain any information, but generally includes at least the sample id. Data may be passed to GLSconversion as a text file name and it is recommended to use the full file path. Data may also be passed to GLSconversion as an R object (data frame) conforming to the same data structure as a text file.  
+Data for GLSconvert must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names for the GL string or the loci for the genotype data. The first two columns may contain any information, but generally includes at least the sample id. Data may be passed to GLSconvert as a text file name (full path recommended). Data may also be passed to GLSconvert as an R object (data frame) conforming to the same data structure as a text file.  
 
 _**GL String to Table**_  
-A typical File for GL string to column table format is **three** columns wide.
+A typical file for GL string to column table conversion is **three** columns wide. More than three columns will be flagged for inconsistent formatting.
 
 |SubjectID |Exp ID  |   GLString                                    |
 |----------|:------:|:---------------------------------------------:|
 |subject1  |Center1 |HLA-A\*01:01+HLA-A\*02:01\^HLA-B\*08:01+HLA-B\*44:02\^HLA-DRB1\*01:01+HLA-DRB1\*03:01 |
 
 
-_**Table to GL Strong**_  
-There is no limit on column number for converting to GL strings, however it should be at least an even number. Two columns for misc information and column pairs for each locus pair. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use '_1', '.1','_2','.2' to distinguish each locus pair. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions.
+_**Table to GL String**_  
+There is no limit on column number for converting to GL strings (expect a minimum of four and an even number of columns). Two columns for misc information and subsequent column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions.
 
 |SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DRB3  | DRB3  |
 |----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
@@ -33,32 +33,81 @@ There is no limit on column number for converting to GL strings, however it shou
 Homozygous allele calls for non-DRB345 alleles can be represented as single alleles in the GL string. For example, HLA-A\*01:01:01:01 + HLA-A\*01:01:01:01 can be written as HLA-A*01:01:01:01.  
 
 **HLA-DRB3, HLA-DRB4, and HLA-DRB5**  
-For HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)). If you wish to define your own zygosity, it is suggested you split them into separate pairs of columns for each locus manually.  
+HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)) and can be flagged for inconsistency. Inconsistent haplotypes are identified with an "!" appened to the allele (in table format) or the GL string (in GL string format).
 
 ## Data Output
 
-Data can be output as either a text file (written as a tab or comma delimitted) or R object (sent to data frame). See Output parameters below.  
+Data can be output as either a text file (written as a tab or comma delimitted) or R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome.
 
 
 ## Parameters
 
-`GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L)`
+`GLS.Convert(Data,Conv,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L)`
 
 **Data**
 
-Class: String. No Default. Required.
+Class: String/Object. (No Default).
 
 e.g., Data="foo.txt" -or- Data=foo
 
-Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting.  
+Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting. This parameter is required for the conversion utility.  
+
+**Conv**
+
+Class: String. Options: "GL2Tab" or "Tab2GL" (No Default).
+
+Specifies data file name or data object. May use file name within working directory or full file name path to specify file location (recommended). See Data Input section for details about file formatting. This parameter is required for the conversion utility.
 
 **Output**
 
 Class: String. Options: "R" or "txt" or "csv" or "pypop" (Default = "txt").
 
-Specifies the type of output for the converted genotypes. For file writting, if you specified the full path for a file name then the resultant file will be written to same path. Otherwise it will be written to whichever working directory you defined. For outputting as R object, this will require an assignment to some object (see examples below).
+Specifies the type of output for the converted genotypes. For file writting, if you specified the full path for a file name then the resultant file will be written to the same path. Otherwise the file will be written to whichever working directory was defined at initiation of conversion. To output as R object will require an assignment to some object (see examples below).
 
 **System**
 
 Class: String. Options: "HLA" or "KIR" (Default="HLA").
+
+**HZY.Red**
+
+Class: Logical (Default=FALSE).
+
+Homozygous reduction: Should non-dRB345 homozygotes be represent by a single allele name in GL string? For example: HLA-A*01:01:01:01+HLA-A*01:01:01:01 as HLA-A*01:01:01:01. The default behavior to keep both allele names in the GL string. This setting does not impact DRB3, DRB4, or DRB5 genotype calls nor will it impact the genotype list to table conversion.  
+
+**System**
+
+DRB345.Flag: Logical (Default=TRUE).
+
+Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged with a '!' appended to genotype. The default behaviour will flag unusual haplotypes.
+
+## Examples
+
+These are examples only and need not be run as defined below.
+
+```
+
+# Install the GLSconvert package
+install.packages("GLSconvert")
+
+# Run the full analysis using the example set bundled with BIGDAWG
+BIGDAWG(Data="HLA_data")
+
+# Run the haplotype analysis with all pairwise combinations on a file called 'data.txt'
+BIGDAWG(Data="data.txt", Run.Tests="H", All.Pairwise=T)
+
+# Run the Hardy-Weinberg and Locus analysis with non-HLA data while ignoring any missing data on a file called 'data.txt'
+BIGDAWG(Data="data.txt", HLA=F, Run.Tests=c("HWE","L"), Missing="ignore")
+
+# Run the amino acid analysis trimming data to 2-Field resolution on a file called 'data.txt'
+BIGDAWG(Data="data.txt", Run.Tests="A", Trim=T, Res=2)
+
+# Run the haplotype analysis with subsets of loci on a file called 'data.txt'
+BIGDAWG(Data="data.txt", Run.Tests="H", Loci.Set=list(c("DRB1","DQB1","DPB1"),c("DRB1","DQB1")))
+
+# Run the full analysis, minimize console output, disable write to file, output to object 'BD'
+BD <- BIGDAWG(Data="data.txt", Output=F, Return=T, Verbose=F)
+
+```
+
+*End of vignette.*
 

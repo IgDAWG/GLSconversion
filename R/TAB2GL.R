@@ -7,8 +7,12 @@
 #' @param Cores Integer How many cores can be used.
 Tab2GL.conv <- function(df,System,HZY.Red,Cores) {
 
-  # Check for ambiguous data at Locus "/"
+  # Check for ambiguous data at allele ("/")
   if( sum(grepl("\\|",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
+
+  # Check for column formatting consistency
+  if( ncol(df) < 4 ) { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
+  if( !is.even(ncol(df)) )  { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
 
   # Run Conversion
   df.list <- lapply(seq(1,nrow(df)),FUN= function(i) df[i,3:ncol(df)])

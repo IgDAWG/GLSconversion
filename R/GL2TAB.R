@@ -3,16 +3,19 @@
 #' Expands GL strings to columns of adjacent locus pairs.
 #' @param df Data frame containing GL strings
 #' @param System Character Genetic system HLA or KIR
-#' @param DRB345.Check Logical Flag unusual DR haplotypes.
+#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores Integer How many cores can be used.
-GL2Tab.conv <- function(df,System,DRB345.Check,Cores) {
+GL2Tab.conv <- function(df,System,DRB345.Flag,Cores) {
 
   # Check for ambiguous data at Locus "/" or genotype "|"
   if( sum(grepl("\\|",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
   if( sum(grepl("\\/",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
 
+  # Check for column formatting consistency
+  if( ncol(df)!= 3 ) { stop("Your data is not properly formatted for the GL2Tab parameter. Conversion stopped.",call.=F) }
+
   # Run Conversion
-  Tab <- mclapply(df[,3],FUN=GL2Tab,System=System,DRB345.Check=DRB345.Check,mc.cores=Cores)
+  Tab <- mclapply(df[,3],FUN=GL2Tab,System=System,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
     Loci <- sort(unique(gsub("_1|_2","",unlist(lapply(Tab,colnames)))))
     Loci.Grp <- rep(Loci,each=2)
     Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)) ; colnames(Out) <- Loci.Grp
@@ -34,8 +37,8 @@ GL2Tab.conv <- function(df,System,DRB345.Check,Cores) {
 #' Expands GL string into a table of adjacent loci
 #' @param x Character GL string to expand
 #' @param System Character Genetic system HLA or KIR
-#' @param DRB345.Check Logical Flag unusual DR haplotypes.
-GL2Tab <- function(x,System,DRB345.Check) {
+#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
+GL2Tab <- function(x,System,DRB345.Flag) {
 
   # Break GL String
   tmp <- unlist(strsplit(x,"\\^")) # Locus
@@ -61,7 +64,7 @@ GL2Tab <- function(x,System,DRB345.Check) {
         DRB.GTYPE <- DRB345.zygosity(i,Calls[grep("DRB",Calls)])
         if(DRB.GTYPE[,'Flag']) {
           # DRB345 is not consistent
-          if(DRB345.check) { Tab[1,grep(i,colnames(Tab))] <- paste(as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')]),"!",sep="")
+          if(DRB345.Flag) { Tab[1,grep(i,colnames(Tab))] <- paste(as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')]),"!",sep="")
           } else { Tab[1,grep(i,colnames(Tab))] <- as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')])}
         } else {
           # DBR345 is consistent

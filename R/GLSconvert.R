@@ -6,37 +6,12 @@
 #' @param Output String Type of output.
 #' @param System String Genetic system (HLA or KIR) of the data being converted
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
-#' @param DRB345.Check Logical Flag unusual DR haplotypes.
+#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=TRUE,DRB345.Check=TRUE,Cores.Lim=1L) {
-
-  # All input files must be tab delimited text files of unamibugous HLA data.
-  # All genotype calls should be formatted as loci*allele format (e.g., HLA-A*01:01:01:01)
-  # This processing script makes certain assumptions based on Class I and Class II loci as well as
-  #   known DR haplotypes.
-  # Data:
-  #    R data frame object or tab delimited text file name (full path recommended)
-  # Conv: Which direction for conversion?
-  #    GL2Tab - Expand GL string data (3 column) to tabular format (default)
-  #    Tab2GL - Condense tabular data to GL string format
-  # Output: what is output type
-  #    R - R data frame object
-  #    txt - outputs to Tab delimited text file (default)
-  #    csv - outputs to CSV delimited text file
-  #    pypop - same as txt with *.pop file extension
-  # ....................................................... Paramters with HLA class I and class II assumptions
-  # HZY.red:
-  #    Homozygous reduction: Should non-dRB345 homozygotes be represent by a single allele name in GL string?
-  #    For example: HLA-A*01:01:01:01 + HLA-A*01:01:01:01 as HLA-A*01:01:01:01
-  #    Default behavior is to reduce HLA genotypes for homozygotes in the GL string
-  #    This setting does not impact DRB3, DRB4, or DRB5 genotype calls
-  # DRB345.Check
-  #    Should DR haplotypes be assessed for correct zygosity and unusual DR haplotypes be flagged with a '!'
-  #    appended to genotype?
-
-  library(parallel)
+GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L) {
 
   # MultiCore Limitations
+  library(parallel)
   if (Cores.Lim!=1L) {
     Cores.Max <- as.integer( floor( parallel::detectCores() * 0.9) )
     if(Sys.info()['sysname']=="Windows" && as.numeric(Cores.Lim)>1) {
@@ -48,22 +23,26 @@ GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=TRU
   # Nomenclature system
   if( System == "HLA" ) { System <- "HLA-" }
 
-  # Read in Data
-  if(is.character(Data)) {
-    df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
-  } else { df <- Data }
+  # Read in Data and Set Output File Name
+  if( is.character(Data) ) {
+    if( file.exists(Data) ) {
+      df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
+       FP <- getPath(Data)$path
+       if( is.na(FP) ) { fileName <- "Converted.txt" } else { fileName <- paste(FP,"Converted.txt",sep="/") }
+    } else { stop("Conversion utility cannot local file, please check name. Conversion Stopped.",call.=FALSE) }
+  } else { df <- Data ; fileName < "Converted.txt" }
 
   # Run Conversion
   switch(Conv,
-         GL2Tab = { data.out <- GL2Tab.conv(df,System,DRB345.Check,Cores.Lim) } ,
-         Tab2GL = { data.out <- TAB2GL.conv(df,System,HZY.Red,Output,Cores.Lim) } )
+         GL2Tab = { data.out <- GL2Tab.conv(df,System,DRB345.Flag,Cores) } ,
+         Tab2GL = { data.out <- Tab2GL.conv(df,System,HZY.Red,Cores) } )
 
   # Output converted file
   switch(Output,
          R = return(data.out),
-         txt = write.table(data.out,file="Converted.txt",sep="\t",quote=F,col.names=T,row.names=F),
-         csv = write.csv(data.out,file="Converted.csv",quote=F,col.names=T,row.names=F),
-         pypop = write.table(data.out,file="Converted.pop",quote=F,col.names=T,row.names=F) )
+         txt = write.table(data.out,file=fileName,sep="\t",quote=F,col.names=T,row.names=F),
+         csv = write.csv(data.out,file=fileName,quote=F,col.names=T,row.names=F),
+         pypop = write.table(data.out,file=fileName,sep="\t",quote=F,col.names=T,row.names=F) )
 
 }
 
