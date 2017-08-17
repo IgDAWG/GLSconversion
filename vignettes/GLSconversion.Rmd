@@ -104,10 +104,8 @@ GLSconvert(Data="foo.txt", conv="GL2Tab", HZY.Red=TRUE)
 
 # Installation of GLSconvert from GitHub
 # If 'devtools' package installation is required for installation via GitHub.
-install.packages("devtools")
-
-# Load latest version from GitHub
 # May require closing and reopening of R Studio after install
+install.packages("devtools") # optional
 library("devtools")
 install_github("IgDAWG/GLSconvert", build_vignettes = TRUE) # Requires Pandoc or RStudio
 install_github("IgDAWG/GLSconvert") # No Pandoc or RStudio
