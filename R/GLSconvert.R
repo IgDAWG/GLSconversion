@@ -30,12 +30,12 @@ GLS.Convert <- function(Data,Conv="GL2Tab",Output="txt",System="HLA",HZY.Red=FAL
        FP <- getPath(Data)$path
        if( is.na(FP) ) { fileName <- "Converted.txt" } else { fileName <- paste(FP,"Converted.txt",sep="/") }
     } else { stop("Conversion utility cannot local file, please check name. Conversion Stopped.",call.=FALSE) }
-  } else { df <- Data ; fileName < "Converted.txt" }
+  } else { df <- Data ; fileName <- "Converted.txt" }
 
   # Run Conversion
   switch(Conv,
          GL2Tab = { data.out <- GL2Tab.conv(df,System,DRB345.Flag,Cores) } ,
-         Tab2GL = { data.out <- Tab2GL.conv(df,System,HZY.Red,Cores) } )
+         Tab2GL = { data.out <- Tab2GL.conv(df,System,HZY.Red,DRB345.Flag,Cores) } )
 
   # Output converted file
   switch(Output,

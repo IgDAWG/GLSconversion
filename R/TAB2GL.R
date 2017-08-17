@@ -4,8 +4,9 @@
 #' @param df Data frame containing GL strings
 #' @param System Character Genetic system HLA or KIR
 #' @param HZY.Red Logical Should homozygote genotypes be a single allele for non-DRB345.
+#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores Integer How many cores can be used.
-Tab2GL.conv <- function(df,System,HZY.Red,Cores) {
+Tab2GL.conv <- function(df,System,HZY.Red,DRB345.Flag,Cores) {
 
   # Check for ambiguous data at allele ("/")
   if( sum(grepl("\\|",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
@@ -14,9 +15,18 @@ Tab2GL.conv <- function(df,System,HZY.Red,Cores) {
   if( ncol(df) < 4 ) { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
   if( !is.even(ncol(df)) )  { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
 
+  # Pre-format data to SystemLoci*Allele
+  colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
+  if( sum(grepl(System,colnames(df)))==0 ) { colnames(df) <- paste(System,colnames(df),sep="") }
+  if( sum(grepl("\\*",df[,3:ncol(df)]))==0 ) {
+    for(i in 3:ncol(df)) {
+      df[,i] <- sapply(df[,i],FUN = Append.System, df.name=colnames(df)[i] )
+    }
+  }
+
   # Run Conversion
   df.list <- lapply(seq(1,nrow(df)),FUN= function(i) df[i,3:ncol(df)])
-  GL <- mclapply(df.list,FUN=Tab2GL,System=System,HZY.Red=HZY.Red,mc.cores=Cores)
+  GL <- mclapply(df.list,FUN=Tab2GL,System=System,HZY.Red=HZY.Red,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
   GL <- do.call(rbind,GL)
   colnames(GL) <- "GL.String"
   GL <- cbind(df[,1:2],GL)
@@ -31,18 +41,31 @@ Tab2GL.conv <- function(df,System,HZY.Red,Cores) {
 #' @param x Row of loci to condense
 #' @param System Character Genetic system HLA or KIR
 #' @param HZY.Red Logical Should homozygote genotypes be a single allele for non-DRB345.
-Tab2GL <- function(x,System,HZY.Red) {
+#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
+Tab2GL <- function(x,System,HZY.Red,DRB345.Flag) {
 
   x <- x[which(x!="")]
-  Loci <- unique(sapply(colnames(x),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement=""))
+  colnames(x) <- sapply(colnames(x),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
+  Loci <- unique(colnames(x))
 
   GLS <- NULL
   # Condense Alleles (+)
   for(i in Loci) {
 
-    Alleles <- x[grep(i,colnames(x))]
-    if( sum(grepl(System,Alleles))==0 ) { Alleles <- paste(System,i,"*",Alleles,sep="") }
+    Alleles <- as.character(x[grep(i,colnames(x))])
     A1 <- Alleles[1] ; A2 <- Alleles[2]
+
+    if(System=="HLA-" && DRB345.Flag) {
+      if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
+          DRB.GTYPE <- DRB345.zygosity(i,x[grep("DRB",names(x))])
+          DRB.GTYPE[grepl("\\^",DRB.GTYPE)] <- NA
+          if(DRB.GTYPE$Flag) {
+            DRB.GTYPE <- paste(DRB.GTYPE,"!",sep="")
+            A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2']
+          } else { A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2'] }
+      }
+    }
+
     if( is.na(A1) || is.na(A2) ) {
       GLS <- c(GLS,Alleles)
     } else if( HZY.Red && A1==A2 ) { GLS <- c(GLS,Alleles[1])
@@ -57,3 +80,15 @@ Tab2GL <- function(x,System,HZY.Red) {
 
 }
 
+#' Append Genetic System Locus Designation to Allele String
+#'
+#' Adds genetic system to each allele name
+#' @param x Vector Column genotypes to append
+#' @param df.name String SystemLocus name for each allele.
+Append.System <- function(x,df.name) {
+
+  getAllele <- which(x!="")
+  x[getAllele] <- paste(df.name,x[getAllele],sep="*")
+  return(x)
+
+}
