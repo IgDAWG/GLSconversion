@@ -89,23 +89,29 @@ These are examples only and need not be run as defined below.
 # Install the GLSconvert package
 install.packages("GLSconvert")
 
-# Run the full analysis using the example set bundled with BIGDAWG
-BIGDAWG(Data="HLA_data")
+# Run the a GL2Tab conversion on a data file with default output to text file
+GLSconvert(Data="/your/path/to/file/foo.txt", conv="GL2Tab")
 
-# Run the haplotype analysis with all pairwise combinations on a file called 'data.txt'
-BIGDAWG(Data="data.txt", Run.Tests="H", All.Pairwise=T)
+# Run the a Tab2GL conversion on an R object outputting to an R object
+foo.tab <- GLSconvert(Data=foo, conv="Tab2GL")
 
-# Run the Hardy-Weinberg and Locus analysis with non-HLA data while ignoring any missing data on a file called 'data.txt'
-BIGDAWG(Data="data.txt", HLA=F, Run.Tests=c("HWE","L"), Missing="ignore")
+# Run the a Tab2GL conversion on a text file outputting to a csv file
+foo.tab <- GLSconvert(Data=foo, conv="Tab2GL", output="csv")
 
-# Run the amino acid analysis trimming data to 2-Field resolution on a file called 'data.txt'
-BIGDAWG(Data="data.txt", Run.Tests="A", Trim=T, Res=2)
+# Run the a GL2Tab conversion on a data file without the full path name and with homozygous allele reduction
+setwd("/your/path/to/file")
+GLSconvert(Data="foo.txt", conv="GL2Tab", HZY.Red=TRUE)
 
-# Run the haplotype analysis with subsets of loci on a file called 'data.txt'
-BIGDAWG(Data="data.txt", Run.Tests="H", Loci.Set=list(c("DRB1","DQB1","DPB1"),c("DRB1","DQB1")))
+# Installation of GLSconvert from GitHub
+# If 'devtools' package installation is required for installation via GitHub.
+install.packages("devtools")
 
-# Run the full analysis, minimize console output, disable write to file, output to object 'BD'
-BD <- BIGDAWG(Data="data.txt", Output=F, Return=T, Verbose=F)
+# Load latest version from GitHub
+# May require closing and reopening of R Studio after install
+library("devtools")
+install_github("IgDAWG/GLSconvert", build_vignettes = TRUE) # Requires Pandoc or RStudio
+install_github("IgDAWG/GLSconvert") # No Pandoc or RStudio
+
 
 ```
 
