@@ -5,17 +5,17 @@
 #' @param System Character Genetic system HLA or KIR
 #' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores Integer How many cores can be used.
-GL2Tab.conv <- function(df,System,DRB345.Flag,Cores) {
+GL2Tab.wrapper <- function(df,System,DRB345.Flag,Cores) {
+
+  # Data column
+  LastCol <- ncol(df)
 
   # Check for ambiguous data at Locus "/" or genotype "|"
-  if( sum(grepl("\\|",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
-  if( sum(grepl("\\/",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
-
-  # Check for column formatting consistency
-  if( ncol(df)!= 3 ) { stop("Your data is not properly formatted for the GL2Tab parameter. Conversion stopped.",call.=F) }
+  if( sum(grepl("\\|",df[,LastCol]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
+  if( sum(grepl("\\/",df[,LastCol]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
 
   # Run Conversion
-  Tab <- parallel::mclapply(df[,3],FUN=GL2Tab,System=System,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
+  Tab <- parallel::mclapply(df[,LastCol],FUN=GL2Tab,System=System,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
     Loci <- sort(unique(gsub("_1|_2","",unlist(lapply(Tab,colnames)))))
     Loci.Grp <- rep(Loci,each=2)
     Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)) ; colnames(Out) <- Loci.Grp

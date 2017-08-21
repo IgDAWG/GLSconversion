@@ -15,22 +15,22 @@ Tools for cross converting HLA or KIR genotyping data from text strings to multi
 
 ### Input Data
 
-Data for GLSconvert must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names for the GL string or the loci for the genotype data. The first two columns may contain any information, but generally includes at least the sample id. Data may be passed to GLSconvert as a text file name (full path recommended). Data may also be passed to GLSconvert as a R object (data frame) conforming to the same data structure as a text file.  
+Data for GLSconvert must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names for the GL string or the loci for the genotype data. The columns preceeding the genotype may contain any information, but generally includes at least the sample id. Data may be passed to GLSconvert as a text file name (full path recommended). Data may also be passed to GLSconvert as a R object (data frame) conforming to the same data structure as a text file. While there is no limit to the number of columns, there is a requirement to column ordering (see below).  
 
 _**GL String to Table**_  
-A typical file for GL string to column table conversion is **three** columns wide. More than three columns will be flagged for inconsistent formatting.
+Formatting for GL string conversion requires that the last column of the data table must contain the GL string.
 
-|SubjectID |Exp ID  |   GLString                                    |
+|SubjectID |Exp ID  |GLString                                       |
 |----------|:------:|:---------------------------------------------:|
 |subject1  |Center1 |HLA-A\*01:01+HLA-A\*02:01\^HLA-B\*08:01+HLA-B\*44:02\^HLA-DRB1\*01:01+HLA-DRB1\*03:01 |
 
 
 _**Table to GL String**_  
-There is no limit on column number for converting to GL strings (expect a minimum of four and an even number of columns). Two columns for misc information and subsequent column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions.
+Formatting for table conversion requires three columns. At least one column for idenitfying information and subsequent column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. Only column names for each locus may repeat, all other column names must be unique. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions. 
 
 |SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DRB3  | DRB3  |
 |----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
-|subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |03:01  |       |       |
+|subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |       |       |
 
 
 **Homozygosity**  
@@ -71,6 +71,8 @@ Specifies the type of output for the converted genotypes. For file writting, if 
 **System**
 
 Class: String. Options: "HLA" or "KIR" (Default="HLA").
+
+Defines the genetic system of the data being converted. This parameter is required for Tab2GL conversion and is ignored for GL2Tab. The default system is HLA.
 
 **HZY.Red**
 

@@ -33,8 +33,8 @@ GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB
 
   # Run Conversion
   switch(Convert,
-         GL2Tab = { data.out <- GL2Tab.conv(df,System,DRB345.Flag,Cores) } ,
-         Tab2GL = { data.out <- Tab2GL.conv(df,System,HZY.Red,DRB345.Flag,Cores) } )
+         GL2Tab = { data.out <- GL2Tab.wrapper(df,System,DRB345.Flag,Cores) } ,
+         Tab2GL = { data.out <- Tab2GL.wrapper(df,System,HZY.Red,DRB345.Flag,Cores) } )
 
   # Output converted file
   switch(Output,
