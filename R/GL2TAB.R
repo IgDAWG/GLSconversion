@@ -61,7 +61,7 @@ GL2Tab <- function(x,System,DRB345.Flag) {
       # Assumptions for DRB345
       if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
 
-        DRB.GTYPE <- DRB345.zygosity(i,Calls[grep("DRB",Calls)])
+        DRB.GTYPE <- DRB345.Check.Zygosity(i,Calls[grep("DRB",Calls)])
         if(DRB.GTYPE[,'Flag']) {
           # DRB345 is not consistent
           if(DRB345.Flag) { Tab[1,grep(i,colnames(Tab))] <- paste(as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')]),"!",sep="")
