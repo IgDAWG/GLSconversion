@@ -15,22 +15,22 @@ Tools for cross converting HLA or KIR genotyping data from text strings to multi
 
 ### Input Data
 
-Data may be passed to GLSconvert as a tab delimited text file name (full path recommended) or as a R object (data frame). Whether a text file or an R object, the first row must be a header line and include column names for the GL string/locus genotypes. The columns preceeding the genotype column(s) may contain any information, but generally includes at least the sample id. While there is no limit to the number of columns, there is a requirement to column ordering depending on the conversion direction.  
+Data may be passed to GLSconvert as a tab delimited text file name (full path recommended) or as a R object (data frame). Whether a text file or an R object, the first row must be a header line and include column names for the GL string/locus genotypes. The columns of miscellanous information preceeding the genotype column(s) may contain any information, but generally includes at least the sample id. While there is no limit to the number of columns, there is a requirement to column ordering depending on the conversion direction.  
 
 _**GL String to Table**_  
 Formatting for GL string conversion requires that the last column of the data table must contain the GL string.
 
 |SubjectID |Exp ID  |GLString                                       |
 |----------|:------:|:---------------------------------------------:|
-|subject1  |Center1 |HLA-A\*01:01+HLA-A\*02:01\^HLA-B\*08:01+HLA-B\*44:02\^HLA-DRB1\*01:01+HLA-DRB1\*03:01 |
+|Subject1  |Center1 |HLA-A\*01:01+HLA-A\*02:01\^HLA-B\*08:01+HLA-B\*44:02\^HLA-DRB1\*01:01+HLA-DRB1\*03:01 |
 
 
 _**Table to GL String**_  
-Formatting for table conversion requires three columns. At least one column for idenitfying information and subsequent column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. Only column names for each locus may repeat, all other column names must be unique. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions. 
+Formatting for table conversion requires three columns. At least one column of identifying information and subsequent column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. Only column names for each locus may repeat, all other column names must be unique. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions. 
 
 |SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DRB3  | DRB3  |
 |----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
-|subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |       |       |
+|Subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |       |       |
 
 
 **Homozygosity**  
@@ -38,6 +38,15 @@ Homozygous allele calls for non-DRB345 alleles can be represented as single alle
 
 **HLA-DRB3, HLA-DRB4, and HLA-DRB5**  
 HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)) and can be flagged for inconsistency. Inconsistent haplotypes are identified with an "!" appened to the allele (in table format) or the GL string (in GL string format).
+
+**Ambiguity**
+The GL2Tab will convert GL strings with genotype amibguity ("|") to mutlitple lines within the final table to be output. The Tab2GL conversion requires amibiguity to exists as multiple (2 or more) rows within the table using identical miscellaneous information (columns preceeding genotyping data). If the data within these columns are not identical, they will not be flagged for inclusion in an ambiguity string.
+
+|SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DPB1  | DPB1  |
+|----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+|Subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |04:02:01:01|02:01:02|
+|Subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |105:01|416:01|
+
 
 ## Data Output
 
