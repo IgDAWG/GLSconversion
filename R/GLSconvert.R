@@ -10,6 +10,14 @@
 #' @param Cores.Lim Integer How many cores can be used.
 GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L) {
 
+  # Check Parameters
+  if(is.na(match(Convert,c("GL2Tab","Tab2GL")))) { stop("Invalid Convert parameter. Conversion Stopped.",call.=FALSE) }
+  if(is.na(match(Output,c("R","txt","csv","pypop")))) { stop("Invalid Output parameter. Conversion Stopped.",call.=FALSE) }
+  if(is.na(match(System,c("HLA","KIR")))) { stop("Invalid System parameter. Conversion Stopped.",call.=FALSE) }
+  if(!is.logical(HZY.Red)) { stop("Invalid HZY.Red parameter. Conversion Stopped.",call.=FALSE) }
+  if(!is.logical(DRB345.Flag)) { stop("Invalid DRB345.Flag parameter. Conversion Stopped.",call.=FALSE) }
+  if(!is.numeric(Cores.Lim) || !is.integer(Cores.Lim)) { stop("Invalid Cores.Lim parameter. Conversion Stopped.",call.=FALSE) }
+
   # MultiCore Limitations
   if (Cores.Lim!=1L) {
     Cores.Max <- as.integer( floor( parallel::detectCores() * 0.9) )
@@ -27,7 +35,7 @@ GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB
     if( file.exists(Data) ) {
       df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
       fileName <- getName(Data)
-    } else { stop("Conversion utility cannot local file, please check name. Conversion Stopped.",call.=FALSE) }
+    } else { stop("Conversion utility cannot locate file, please check name. Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted.txt" }
 
   # Run Conversion

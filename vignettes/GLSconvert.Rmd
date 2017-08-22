@@ -43,7 +43,7 @@ HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status 
 
 ## Data Output
 
-Data can be output to either a text file (tab or comma delimitted) or R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome.
+Data can be output to either a text file (tab or comma delimitted) or R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome. Please not, subsequent programs used to analyze the data table such as BIGDAWG or Pypop may not accept files with ambiguous genotyping data.
 
 
 ## Parameters
@@ -68,7 +68,7 @@ Specifies data file name or data object. May use file name within working direct
 
 Class: String. Options: "R" -or- "txt" -or- "csv" -or- "pypop" (Default = "txt").
 
-Specifies the type of output for the converted genotypes. For file writting, if you specified the full path for a file name then the resultant file will be written to the same path. Otherwise the file will be written to whichever working directory was defined at initiation of conversion. To output as R object will require an assignment to some object (see examples below).
+Specifies the type of output for the converted genotypes. For file writting, if you specified the full path for a file name then the resultant file will be written to the same directory. Otherwise the file will be written to whichever working directory was defined at initiation of conversion. The converted file name will be of the form "Converted_foo.txt" depending on output setting. If the data was an R object, the file name will be "Converted.txt" if output to file is desired. To output as R object will require an assignment to some object (see examples below).
 
 **System**
 
