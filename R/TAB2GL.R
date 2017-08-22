@@ -12,19 +12,22 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,DRB345.Flag,Cores) {
   if( sum(grepl("\\|",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
 
   # Check for column formatting consistency
-  if( ncol(df) < 4 ) { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
+  if( ncol(df) < 3 ) { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
+
+  # Define data columns assuming Locus columns come in pairs
+  colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
+  DataCol <- as.numeric(sapply(names(which(table(colnames(df))==2)), FUN=function(x) grep(x,colnames(df))))
 
   # Pre-format data to SystemLoci*Allele
-  colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
-  if( sum(grepl(System,colnames(df)))==0 ) { colnames(df) <- paste(System,colnames(df),sep="") }
-  if( sum(grepl("\\*",df[,3:ncol(df)]))==0 ) {
-    for(i in 3:ncol(df)) {
-      df[,i] <- sapply(df[,i],FUN = Append.System, df.name=colnames(df)[i] )
+  if( sum(grepl(System,colnames(df)[DataCol]))==0 ) { colnames(df)[DataCol] <- paste(System,colnames(df)[DataCol],sep="") }
+  if( sum(grepl("\\*",df[,DataCol]))==0 ) {
+    for(i in DataCol) {
+      df[,i] <- sapply(df[,i], FUN = Append.System, df.name=colnames(df)[i] )
     }
   }
 
   # Run Conversion
-  df.list <- lapply(seq(1,nrow(df)),FUN= function(i) df[i,3:ncol(df)])
+  df.list <- lapply(seq(1,nrow(df)),FUN= function(i) df[i,DataCol])
   GL <- parallel::mclapply(df.list,FUN=Tab2GL,System=System,HZY.Red=HZY.Red,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
   GL <- do.call(rbind,GL)
   colnames(GL) <- "GL.String"
@@ -56,7 +59,7 @@ Tab2GL <- function(x,System,HZY.Red,DRB345.Flag) {
 
     if(System=="HLA-" && DRB345.Flag) {
       if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
-          DRB.GTYPE <- DRB345.zygosity(i,x[grep("DRB",names(x))])
+          DRB.GTYPE <- DRB345.Check.Zygosity(i, x[grep("DRB",names(x))] )
           DRB.GTYPE[grepl("\\^",DRB.GTYPE)] <- NA
           if(DRB.GTYPE$Flag) {
             DRB.GTYPE <- paste(DRB.GTYPE,"!",sep="")

@@ -4,7 +4,7 @@
 #' @param Locus Locus of interest to test for consistency
 #' @param Genotype Row of data set data frame following DRB345 parsing
 #' @note This function is for internal BIGDAWG use only.
-DRB345.zygosity <- function(Locus,Genotype) {
+DRB345.Check.Zygosity <- function(Locus,Genotype) {
 
   #Checks for and fixes certain DRB345 errors that are consistent with known DR haplotypes
   Rules <- list("DRB1*01"="^","DRB1*10"="^","DRB1*08"="^",

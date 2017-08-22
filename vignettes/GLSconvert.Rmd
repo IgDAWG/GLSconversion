@@ -1,10 +1,10 @@
 ---
-title: "GLSconvert"
+title: "GLSconversion"
 author: "Derek Pappas, Ph.D. (dpappas@chori.org)"
-date: "August 16, 2017"
+date: "August 21, 2017"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using GLSconvert}
+  %\VignetteIndexEntry{Using GLSconversion}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -15,7 +15,9 @@ Tools for cross converting HLA or KIR genotyping data from text strings to multi
 
 ### Input Data
 
-Data for GLSconvert must be formatted as tab delimited text (UTF-8 encoding). The first row is a header line and includes column names for the GL string or the loci for the genotype data. The columns preceeding the genotype may contain any information, but generally includes at least the sample id. Data may be passed to GLSconvert as a text file name (full path recommended). Data may also be passed to GLSconvert as a R object (data frame) conforming to the same data structure as a text file. While there is no limit to the number of columns, there is a requirement to column ordering (see below).  
+Data may be passed to GLSconvert as a tab delimited text file name (full path recommended) or as a R object (data frame). Whether a text file or an R object, the first row must be a header line and include column names for the GL string/locus genotypes. The columns preceeding the genotype column(s) may contain any information, but generally includes at least the sample id. While there is no limit to the number of columns, there is a requirement to column ordering depending on the conversion direction.  
+
+
 
 _**GL String to Table**_  
 Formatting for GL string conversion requires that the last column of the data table must contain the GL string.
@@ -41,18 +43,18 @@ HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status 
 
 ## Data Output
 
-Data can be output as either a text file (written as tab or comma delimitted) or a R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome.
+Data can be output to either a text file (tab or comma delimitted) or R object (sent to data frame). See Output parameters below. When running the GL2Tab conversion, all adjacent pairs of loci will include '_1' and '_2' to distinguish each chromosome.
 
 
 ## Parameters
 
-`GLS.Convert(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L)`
+`GLS.Convert(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L)`
 
 **Data**
 
 Class: String/Object. (No Default).
 
-e.g., Data="/your/path/to/file/foo.txt" -or- Data="foo.txt" -or- Data=foo
+e.g., Data="/your/path/to/file/foo.txt" -or- Data="foo.txt" -or- Data=foo (No Default)
 
 Specifies data file name or data object. File name is either full file name path to specify file location (recommended) or name of file within a set working directory. See Data Input section for details about file formatting. **This parameter is required for the conversion utility.**  
 
@@ -78,22 +80,26 @@ Defines the genetic system of the data being converted. This parameter is requir
 
 Class: Logical (Default=FALSE).
 
-Homozygous reduction: Should non-dRB345 homozygotes be represent by a single allele name in GL string? For example: HLA-A*01:01:01:01+HLA-A*01:01:01:01 as HLA-A*01:01:01:01. The default behavior to keep both allele names in the GL string. This setting does not impact DRB3, DRB4, or DRB5 genotype calls nor will it impact the genotype list to table conversion.  
+Homozygous reduction: Should non-dRB345 homozygotes be represent by a single allele name in GL string? For example: HLA-A*01:01:01:01+HLA-A*01:01:01:01 as HLA-A*01:01:01:01. The default behavior to keep both allele names in the GL string. This setting does not impact DRB3, DRB4, or DRB5 genotype calls nor will it impact the genotype list to table conversion (GL2Tab).  
 
-**System**
+**DRB345.Flag**
 
-DRB345.Flag: Logical (Default=TRUE).
+Class: Logical (Default=FALSE).
 
-Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged with a '!' appended to genotype. The default behaviour will flag unusual haplotypes.
+Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged with an exclamation ('!') appended to genotype. The default behaviour will not flag unusual haplotypes.
 
 ## Examples
 
 These are examples only and need not be run as defined below.
 
 ```
-
-# Install the GLSconvert package
-install.packages("GLSconvert")
+# Installation of GLSconversion from GitHub
+# May require 'devtools' package installation first.
+# May require closing and reopening of R Studio after install.
+install.packages("devtools") # optional
+library("devtools")
+install_github("IgDAWG/GLSconversion", build_vignettes = TRUE) # Requires Pandoc or RStudio
+install_github("IgDAWG/GLSconversion") # No Pandoc or RStudio
 
 # Run the a GL2Tab conversion on a data file with default output to text file
 GLSconvert(Data="/your/path/to/file/foo.txt", conv="GL2Tab")
@@ -107,15 +113,6 @@ foo.tab <- GLSconvert(Data=foo, conv="Tab2GL", output="csv")
 # Run the a GL2Tab conversion on a data file without the full path name and with homozygous allele reduction
 setwd("/your/path/to/file")
 GLSconvert(Data="foo.txt", conv="GL2Tab", HZY.Red=TRUE)
-
-# Installation of GLSconvert from GitHub
-# May require 'devtools' package installation first.
-# May require closing and reopening of R Studio after install.
-install.packages("devtools") # optional
-library("devtools")
-install_github("IgDAWG/GLSconvert", build_vignettes = TRUE) # Requires Pandoc or RStudio
-install_github("IgDAWG/GLSconvert") # No Pandoc or RStudio
-
 
 ```
 

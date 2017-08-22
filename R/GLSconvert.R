@@ -8,7 +8,7 @@
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=TRUE,Cores.Lim=1L) {
+GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L) {
 
   # MultiCore Limitations
   if (Cores.Lim!=1L) {
@@ -26,8 +26,7 @@ GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB
   if( is.character(Data) ) {
     if( file.exists(Data) ) {
       df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
-       FP <- getPath(Data)$path
-       if( is.na(FP) ) { fileName <- "Converted.txt" } else { fileName <- paste(FP,"Converted.txt",sep="/") }
+      fileName <- getName(Data)
     } else { stop("Conversion utility cannot local file, please check name. Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted.txt" }
 
@@ -44,6 +43,3 @@ GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB
          pypop = write.table(data.out,file=fileName,sep="\t",quote=F,col.names=T,row.names=F) )
 
 }
-
-
-

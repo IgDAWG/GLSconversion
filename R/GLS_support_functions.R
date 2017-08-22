@@ -2,30 +2,17 @@
 #'
 #' Function to extract file path.
 #' @param x File name.
-getPath <- function(x) {
+getName <- function(x) {
 
-  tmp.list <- list()
+  tmpDir <- dirname(x)
+  tmpName <- basename(x)
 
-  if( grepl("/",x) ) {
-    tmp <- unlist(strsplit(x,split="/"))
-    tmp <- tmp[-which(tmp=="")]
-    tmp.list$name <- tmp[length(tmp)]
-    tmp.list$path <- paste("/",paste(tmp[seq(1,length(tmp)-1)],collapse="/"),sep="")
+  if(basename(x)==x) {
+    outName <- paste("Converted_",x,sep="")
   } else {
-    tmp.list$name <- x
-    tmp.list$path <- NA
+    outName <- paste(tmpDir,"/Converted_",tmpName,sep="")
   }
 
-  return(tmp.list)
-
-}
-
-#' Even Number Determination
-#'
-#' Function to identify even numbers.
-#' @param x Number in question.
-is.even <- function(x) {
-
-  return(x %% 2 == 0)
+  return(outName)
 
 }
