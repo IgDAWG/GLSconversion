@@ -17,8 +17,6 @@ Tools for cross converting HLA or KIR genotyping data from text strings to multi
 
 Data may be passed to GLSconvert as a tab delimited text file name (full path recommended) or as a R object (data frame). Whether a text file or an R object, the first row must be a header line and include column names for the GL string/locus genotypes. The columns preceeding the genotype column(s) may contain any information, but generally includes at least the sample id. While there is no limit to the number of columns, there is a requirement to column ordering depending on the conversion direction.  
 
-
-
 _**GL String to Table**_  
 Formatting for GL string conversion requires that the last column of the data table must contain the GL string.
 
