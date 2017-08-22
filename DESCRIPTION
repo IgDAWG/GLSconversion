@@ -7,7 +7,7 @@ Author: Derek Pappas <dpappas@chori.org>, Steve Mack <sjmack@chori.org>
 Maintainer: Steve Mack <sjmack@chori.org>
 URL: http://tools.immunogenomics.org/ ; https://github.com/IgDAWG/GLSconvert
 BugReports: https://github.com/IgDAWG/GLSconvert/issues
-Description: Conversion tool.
+Description: Tools for cross converting HLA or KIR genotyping data from texts strings to multi-column table format as desribed in Milius RP, Mack SJ, Hollenbach JA, et al. (2013) <doi:10.1111/tan.12150>.
 License: GPL (>= 3)
 LazyData: True
 Depends:
