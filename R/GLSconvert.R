@@ -8,7 +8,7 @@
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLS.Convert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L) {
+GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L) {
 
   # Check Parameters
   if(is.na(match(Convert,c("GL2Tab","Tab2GL")))) { stop("Invalid Convert parameter. Conversion Stopped.",call.=FALSE) }

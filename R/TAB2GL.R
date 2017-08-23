@@ -8,15 +8,19 @@
 #' @param Cores Integer How many cores can be used.
 Tab2GL.wrapper <- function(df,System,HZY.Red,DRB345.Flag,Cores) {
 
-  # Check for ambiguous data at allele ("/")
-  if( sum(grepl("\\|",df[,3]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
+   # Check for column formatting consistency
+  if( ncol(df) < 3 ) { stop("Your data is not properly formatted for the Tab2GL parameter, too few columns. Conversion stopped.",call.=F) }
 
-  # Check for column formatting consistency
-  if( ncol(df) < 3 ) { stop("Your data is not properly formatted for the Tab2GL parameter. Conversion stopped.",call.=F) }
-
-  # Define data columns assuming Locus columns come in pairs
+  # Define data locus columns assuming Locus columns come in pairs
   colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
   DataCol <- as.numeric(sapply(names(which(table(colnames(df))==2)), FUN=function(x) grep(x,colnames(df))))
+  MiscCol <- setdiff(1:ncol(df),DataCol)
+
+  # Check for identical rows of miscellanous information from non-data columns. Ambiguous Data Flag.
+  Misc.tmp <- apply(df[,MiscCol],MARGIN=1,FUN=paste,collapse=":")
+  if( length(which(table(Misc.tmp)>1))>0 ) {
+    stop("Your data is has redundant/identical rows, perhaps due to data ambiguity. Conversion stopped.",call.=F)
+  }
 
   # Pre-format data to SystemLoci*Allele
   if( sum(grepl(System,colnames(df)[DataCol]))==0 ) { colnames(df)[DataCol] <- paste(System,colnames(df)[DataCol],sep="") }
