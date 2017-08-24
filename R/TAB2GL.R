@@ -9,7 +9,7 @@
 Tab2GL.wrapper <- function(df,System,HZY.Red,DRB345.Flag,Cores) {
 
    # Check for column formatting consistency
-  if( ncol(df) < 3 ) { stop("Your data is not properly formatted for the Tab2GL parameter, too few columns. Conversion stopped.",call.=F) }
+  if( ncol(df) < 3 ) { Err.Log("Table.Col") ; stop("Conversion stopped.",call.=F) }
 
   # Define data locus columns assuming Locus columns come in pairs
   colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
@@ -19,12 +19,12 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,DRB345.Flag,Cores) {
   # Check for identical rows of miscellanous information from non-data columns. Ambiguous Data Flag.
   Misc.tmp <- apply(df[,MiscCol],MARGIN=1,FUN=paste,collapse=":")
   if( length(which(table(Misc.tmp)>1))>0 ) {
-    stop("Your data is has redundant/identical rows, perhaps due to data ambiguity. Conversion stopped.",call.=F)
-  }
+    Err.Log("Table.Amb") ; stop("Conversion stopped.",call.=F)
+  }; rm(Misc.tmp,MiscCol)
 
   # Pre-format data to SystemLoci*Allele
   if( sum(grepl(System,colnames(df)[DataCol]))==0 ) { colnames(df)[DataCol] <- paste(System,colnames(df)[DataCol],sep="") }
-  if( sum(grepl("\\*",df[,DataCol]))==0 ) {
+  if( sum(grepl("*",df[,DataCol]))==0 ) {
     for(i in DataCol) {
       df[,i] <- sapply(df[,i], FUN = Append.System, df.name=colnames(df)[i] )
     }
@@ -58,7 +58,7 @@ Tab2GL <- function(x,System,HZY.Red,DRB345.Flag) {
   # Condense Alleles (+)
   for(i in Loci) {
 
-    Alleles <- as.character(x[grep(i,colnames(x))])
+    Alleles <- as.character(x[,grep(i,colnames(x))])
     A1 <- Alleles[1] ; A2 <- Alleles[2]
 
     if(System=="HLA-" && DRB345.Flag) {

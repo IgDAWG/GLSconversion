@@ -11,18 +11,18 @@
 GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L) {
 
   # Check Parameters
-  if(is.na(match(Convert,c("GL2Tab","Tab2GL")))) { stop("Invalid Convert parameter. Conversion Stopped.",call.=FALSE) }
-  if(is.na(match(Output,c("R","txt","csv","pypop")))) { stop("Invalid Output parameter. Conversion Stopped.",call.=FALSE) }
-  if(is.na(match(System,c("HLA","KIR")))) { stop("Invalid System parameter. Conversion Stopped.",call.=FALSE) }
-  if(!is.logical(HZY.Red)) { stop("Invalid HZY.Red parameter. Conversion Stopped.",call.=FALSE) }
-  if(!is.logical(DRB345.Flag)) { stop("Invalid DRB345.Flag parameter. Conversion Stopped.",call.=FALSE) }
-  if(!is.numeric(Cores.Lim) || !is.integer(Cores.Lim)) { stop("Invalid Cores.Lim parameter. Conversion Stopped.",call.=FALSE) }
+  if(is.na(match(Convert,c("GL2Tab","Tab2GL")))) { Err.Log("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(is.na(match(Output,c("R","txt","csv","pypop")))) { Err.Log("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(is.na(match(System,c("HLA","KIR")))) { Err.Log("P.System") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(!is.logical(HZY.Red)) { Err.Log("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(!is.logical(DRB345.Flag)) { Err.Log("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(!is.numeric(Cores.Lim) || !is.integer(Cores.Lim)) { Err.Log("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
 
   # MultiCore Limitations
   if (Cores.Lim!=1L) {
     Cores.Max <- as.integer( floor( parallel::detectCores() * 0.9) )
     if(Sys.info()['sysname']=="Windows" && as.numeric(Cores.Lim)>1) {
-      stop("Windows cores max exceeded. Conversion stopped.",call. = F)
+      Err.Log("Windows.Cores") ; stop("Conversion stopped.",call. = F)
     } else if( Cores.Lim > Cores.Max ) { Cores <- Cores.Max
     } else { Cores <- Cores.Lim }
   } else { Cores <- Cores.Lim }
@@ -35,8 +35,10 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
     if( file.exists(Data) ) {
       df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
       fileName <- getName(Data)
-    } else { stop("Conversion utility cannot locate file, please check name. Conversion Stopped.",call.=FALSE) }
+    } else { Err.Log(File.Error,Data) ; stop("Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted.txt" }
+  df[] <- lapply(df, as.character)
+
 
   # Run Conversion
   switch(Convert,

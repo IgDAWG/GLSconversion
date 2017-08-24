@@ -11,8 +11,7 @@ GL2Tab.wrapper <- function(df,System,DRB345.Flag,Cores) {
   LastCol <- ncol(df)
 
   # Check for ambiguous data at genotype "|"
-  if( sum(grepl("\\|",df[,LastCol]))>0 ) { stop("This appears to contain genotype list piping ('|') for ambiguity strings. Conversion stopped.",call.=F) }
-  #if( sum(grepl("\\/",df[,LastCol]))>0 ) { stop("This appears to be ambiguous data. Conversion stopped.",call.=F) }
+  if( sum(grepl("\\|",df[,LastCol]))>0 ) { Err.Log("GTYPE.Amb") ; stop("Conversion stopped.",call.=F) }
 
   # Run Conversion
   df.list <- strsplit(df[,LastCol],"\\^")
@@ -41,18 +40,9 @@ GL2Tab.wrapper <- function(df,System,DRB345.Flag,Cores) {
 #' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 GL2Tab <- function(x,System,DRB345.Flag) {
 
-  # Break Ambiguities
-  tmp <- strsplit(x,"\\|") # Genotype
-  gSet <- prod(unlist(lapply(tmp,FUN=length)))
-  for(i in seq_len(length(tmp))) {
-
-    tmp[[i]]
-  }
-
   # Break GL String
   #tmp <- unlist(strsplit(x,"\\^")) # Locus
-  #tmp <- sapply(tmp,FUN=function(x)strsplit(x,"\\+")) # Chromosome
-
+  tmp <- sapply(x,FUN=function(x) strsplit(x,"\\+")) # Chromosome
   Calls <- unlist(tmp) ; names(Calls) <- NULL
 
   # Get Loci and Initialize Table
