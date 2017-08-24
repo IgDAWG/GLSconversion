@@ -3,9 +3,8 @@
 #' Expands GL strings to columns of adjacent locus pairs.
 #' @param df Data frame containing GL strings
 #' @param System Character Genetic system HLA or KIR
-#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
 #' @param Cores Integer How many cores can be used.
-GL2Tab.wrapper <- function(df,System,DRB345.Flag,Cores) {
+GL2Tab.wrapper <- function(df,System,Cores) {
 
   # Data column
   LastCol <- ncol(df)
@@ -15,14 +14,11 @@ GL2Tab.wrapper <- function(df,System,DRB345.Flag,Cores) {
 
   # Run Conversion
   df.list <- strsplit(df[,LastCol],"\\^")
-  Tab <- parallel::mclapply(df.list,FUN=GL2Tab,System=System,DRB345.Flag=DRB345.Flag,mc.cores=Cores)
+  Tab <- parallel::mclapply(df.list,FUN=GL2Tab,System=System,mc.cores=Cores)
     Loci <- sort(unique(gsub("_1|_2","",unlist(lapply(Tab,colnames)))))
-    Loci.Grp <- rep(Loci,each=2)
-    Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)) ; colnames(Out) <- Loci.Grp
-    colnames(Out)[seq(1,length(Loci.Grp),by=2)] <- paste(Loci,"_1",sep="")
-    colnames(Out)[seq(2,length(Loci.Grp),by=2)] <- paste(Loci,"_2",sep="")
+    Tab.Out <- Build.Matrix(System,Loci)
 
-  Tab <- parallel::mclapply(Tab,FUN=Format.Tab,Out=Out,mc.cores=Cores)
+  Tab <- parallel::mclapply(Tab,FUN=Format.Tab,Tab.Out=Tab.Out,mc.cores=Cores)
     Tab <- do.call(rbind,Tab)
     Tab[Tab==0] <- ""
     Tab[grepl("\\^",Tab)] <- ""
@@ -37,48 +33,42 @@ GL2Tab.wrapper <- function(df,System,DRB345.Flag,Cores) {
 #' Expands GL string into a table of adjacent loci
 #' @param x Character GL string to expand
 #' @param System Character Genetic system HLA or KIR
-#' @param DRB345.Flag Logical Flag unusual DR haplotypes.
-GL2Tab <- function(x,System,DRB345.Flag) {
+GL2Tab <- function(x,System) {
 
   # Break GL String
   #tmp <- unlist(strsplit(x,"\\^")) # Locus
-  tmp <- sapply(x,FUN=function(x) strsplit(x,"\\+")) # Chromosome
-  Calls <- unlist(tmp) ; names(Calls) <- NULL
+  Calls <- unlist(sapply(x,FUN=function(x) strsplit(x,"\\+"))) ; names(Calls) <- NULL
 
   # Get Loci and Initialize Table
   Loci <- unique(unlist(lapply(strsplit(Calls,"\\*"),"[",1)))
-  Loci.Grp <- rep(Loci,each=2)
-  Tab <- mat.or.vec(nr=1,nc=length(Loci.Grp)) ; colnames(Tab) <- Loci.Grp
-  colnames(Tab)[seq(1,length(Loci.Grp),by=2)] <- paste(Loci,"_1",sep="")
-  colnames(Tab)[seq(2,length(Loci.Grp),by=2)] <- paste(Loci,"_2",sep="")
+  if(System=="HLA-") {
+    Loci <- c(Loci,DRB345.Exp(Calls[grep("DRB1",Calls)]))
+    if(sum(grepl("\\^",Loci))>0) { Loci <- Loci[-grep("\\^",Loci)] }
+    Loci <- unique(Loci)
+  }
+  Tab <- Build.Matrix(System,Loci)
 
   # Populate Table
+  if(System=="HLA-") { DRB345.Flag <- NULL }
   for(i in Loci) {
 
-    getCalls <- grep(i,Calls)
-
     if(System=="HLA-") {
-      # Assumptions for DRB345
+      # HLA System
       if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
-
+        # Assumptions for DRB345
         DRB.GTYPE <- DRB345.Check.Zygosity(i,Calls[grep("DRB",Calls)])
-        if(DRB.GTYPE[,'Flag']) {
-          # DRB345 is not consistent
-          if(DRB345.Flag) { Tab[1,grep(i,colnames(Tab))] <- paste(as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')]),"!",sep="")
-          } else { Tab[1,grep(i,colnames(Tab))] <- as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')])}
-        } else {
-          # DBR345 is consistent
-          Tab[1,grep(i,colnames(Tab))] <- as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')])
-        }
+        Tab[1,grep(i,colnames(Tab))] <- as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')])
+        if( as.logical(DRB.GTYPE[,'Flag']) ) { DRB345.Flag <- c(DRB345.Flag,i) }
       } else {
-        # non-DRB345 situations
+        # non-DRB345 alleles
         Tab[1,grep(i,colnames(Tab))] <- Calls[grep(i,Calls)]
       }
-
     } else {
-      # non-HLA
+      # non-HLA System
       Tab[1,grep(i,colnames(Tab))] <- Calls[grep(i,Calls)]
     }
+
+  if(System=="HLA-") { Tab[,'DRB.HapFlag'] <- ifelse(!is.null(DRB345.Flag), paste(unlist(DRB345.Flag),collapse=",") , "") }
 
   }# End i
 
@@ -86,14 +76,3 @@ GL2Tab <- function(x,System,DRB345.Flag) {
 
 }
 
-#' Tabular Data Locus Format Tool
-#'
-#' Correctly orders the expanded GL string
-#' @param x Single row of converted GL string
-#' @param Out Single row data frame for mapping converted GL strings
-Format.Tab <- function(x,Out) {
-
-  Out[,match(colnames(x),colnames(Out))] <- x
-  return(Out)
-
-}

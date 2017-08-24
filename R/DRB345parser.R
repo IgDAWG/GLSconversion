@@ -3,8 +3,57 @@
 #' Checks DR haplotypes for correct zygosity and flags unanticipated haplotypes
 #' @param Locus Locus of interest to test for consistency
 #' @param Genotype Row of data set data frame following DRB345 parsing
-#' @note This function is for internal BIGDAWG use only.
+#' @note This function is for internal use only.
 DRB345.Check.Zygosity <- function(Locus,Genotype) {
+
+  DR.out <- data.frame(Locus_1=character(), Locus_2=character(), Flag=character(), stringsAsFactors=F)
+  Abs <- paste(Locus,"*^",sep="")
+
+  DR.Locus <- gsub("HLA-","",Locus) ; DR.Calls <- gsub("HLA-","",Genotype)
+  DR.Calls <- sapply(DR.Calls,FUN=GetField,Res=1) # get 1 Field Resolution for Genotype Calls
+  names(DR.Calls) <- NULL ; Flag <- NULL
+
+  #DRB1 - get expected DRB3/4/5 genotypes
+  DR345.Exp.Calls <- DRB345.Exp(DR.Calls[grep("DRB1",DR.Calls)])
+
+  #DRB345 Check
+  getDRB345 <- grep(DR.Locus,DR.Calls) ; DR.obs <- length(getDRB345) ; DR.exp <- sum(grepl(DR.Locus,DR345.Exp.Calls))
+
+  if( length(getDRB345)>0 ) {
+
+
+    A1 <- Genotype[getDRB345[1]] ; A2 <- ifelse(length(getDRB345)>1, Genotype[getDRB345[2]], Abs)
+
+    if( DR.obs != DR.exp ) {
+      if( DR.obs==1 && DR.exp==2 ) {
+        # Presumed Homozygote
+        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A1 ; DR.out[1, 'Flag'] <- FALSE
+      } else if( DR.obs==2 && DR.exp==1 && A1==A2 ) {
+        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- Abs ; DR.out[1, 'Flag'] <- FALSE
+      } else if( DR.obs==2 && DR.exp==1 && A1!=A2 ) {
+        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A2 ; DR.out[1, 'Flag'] <- TRUE
+      } else if( DR.exp==0 ) {
+        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A2 ; DR.out[1, 'Flag'] <- TRUE
+      }
+    } else {
+      # consistent genotype
+      DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A2 ; DR.out[1, 'Flag'] <- FALSE
+    }
+
+  } else { DR.out[1, 'Locus_1'] <- Abs ; DR.out[1, 'Locus_2'] <- Abs ; DR.out[1, 'Flag'] <- ifelse(DR.exp>0, TRUE, FALSE) }
+
+  # Return Result
+  return(DR.out)
+
+}
+
+#' DRB345 Expected
+#'
+#' Checks DRB1 Genotype and Returns Expected DR345 Loci
+#' @param DRB1.Genotype DRB1 Subject Genotypes
+#' @param Prefix Should the HLA- prefix be appended to genotype calls
+#' @note This function is for internal use only.
+DRB345.Exp <- function(DRB1.Genotype,Prefix=TRUE) {
 
   #Checks for and fixes certain DRB345 errors that are consistent with known DR haplotypes
   Rules <- list("DRB1*01"="^","DRB1*10"="^","DRB1*08"="^",
@@ -12,50 +61,23 @@ DRB345.Check.Zygosity <- function(Locus,Genotype) {
                 "DRB1*04"="DRB4","DRB1*07"="DRB4","DRB1*09"="DRB4",
                 "DRB1*15"="DRB5","DRB1*16"="DRB5")
 
-  DR.out <- data.frame(Locus_1=character(), Locus_2=character(), Flag=character(), stringsAsFactors=F)
-  Abs <- paste(Locus,"*^",sep="")
+  DRB1.Genotype <- gsub("HLA-","",DRB1.Genotype)
+  DRB1.Genotype <- sapply(DRB1.Genotype,FUN=GetField,Res=1)
 
-  DR.Calls <- gsub("HLA-","",Genotype) ; DR.Locus <- gsub("HLA-","",Locus)
-  DR.Calls <- sapply(DR.Calls,FUN=GetField,Res=1) # get 1 Field Resolution for Genotype Calls
-  names(DR.Calls) <- NULL ; Flag <- NULL
-
-  #DRB1 - get expected DRB3/4/5 genotypes
-  getDRB1 <- grep("DRB1",DR.Calls)
-
-  DRB1.1 <- DR.Calls[getDRB1[1]]
+  # Allele 1
+  DRB1.1 <- DRB1.Genotype[1]
   DR.Gtype <- as.character(Rules[DRB1.1])
 
-  if(length(getDRB1)==1) {
-    DRB1.2 <-  DR.Calls[getDRB1[1]]
+  # Allele 2
+  if(length(DRB1.Genotype)==1) {
+    #Consider Homozygote
+    DRB1.2 <-  DRB1.Genotype[1]
   } else {
-    DRB1.2 <-  DR.Calls[getDRB1[2]]
+    DRB1.2 <-  DRB1.Genotype[2]
   }
-  DR.Gtype <- c(DR.Gtype,as.character(Rules[DRB1.2]))
+  DR.Gtype <- paste("HLA-",c(DR.Gtype,as.character(Rules[DRB1.2])),sep="")
 
-  #DRB345 Check
-  getDRB345 <- grep(DR.Locus,DR.Calls)
-  if( length(getDRB345)>0 ) {
-
-    DR.obs <- length(getDRB345)
-    DR.exp <- sum(grepl(DR.Locus,DR.Gtype))
-    A1 <- Genotype[getDRB345[1]] ; A2 <- ifelse(length(getDRB345)>1, Genotype[getDRB345[2]], Abs)
-
-    if( DR.obs != DR.exp ) {
-      if( DR.obs==1 && DR.exp==2 ) {
-        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A1 ; DR.out[1, 'Flag'] <- F
-      } else if( DR.obs==2 && DR.exp==1 && A1==A2 ) {
-        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- Abs ; DR.out[1, 'Flag'] <- F
-      } else if( DR.obs==2 && DR.exp==1 && A1!=A2 ) {
-        DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A2 ; DR.out[1, 'Flag'] <- T
-      }
-    } else {
-      DR.out[1, 'Locus_1'] <- A1 ; DR.out[1, 'Locus_2'] <- A2 ; DR.out[1, 'Flag'] <- F
-    }
-
-  } else { DR.out[1, 'Locus_1'] <- Abs ; DR.out[1, 'Locus_2'] <- Abs ; DR.out[1, 'Flag'] <- F }
-
-  # Return Result
-  return(DR.out)
+  return(DR.Gtype)
 
 }
 
@@ -64,7 +86,7 @@ DRB345.Check.Zygosity <- function(Locus,Genotype) {
 #' Trim a properly formatted HLA allele to desired number of fields.
 #' @param x HLA allele.
 #' @param Res Resolution desired.
-#' @note This function is for internal BIGDAWG use only.
+#' @note This function is for internal use only.
 GetField <- function(x,Res) {
   Tmp <- unlist(strsplit(as.character(x),":"))
   if (length(Tmp)<2) {
