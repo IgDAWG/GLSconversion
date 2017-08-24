@@ -1,8 +1,8 @@
 Package: GLSconversion
 Type: Package
 Title: Genotype List String Cross Conversion Tool
-Version: 1.0
-Date: 2017-08-16
+Version: 1.0.1
+Date: 2017-08-23
 Author: Derek Pappas <dpappas@chori.org>, Steve Mack <sjmack@chori.org>
 Maintainer: Steve Mack <sjmack@chori.org>
 URL: http://tools.immunogenomics.org/ ; https://github.com/IgDAWG/GLSconvert
