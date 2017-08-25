@@ -36,10 +36,14 @@ GL2Tab.wrapper <- function(df,System,Cores) {
 GL2Tab <- function(x,System) {
 
   # Break GL String
-  #tmp <- unlist(strsplit(x,"\\^")) # Locus
   Calls <- unlist(sapply(x,FUN=function(x) strsplit(x,"\\+"))) ; names(Calls) <- NULL
 
-  # Get Loci and Initialize Table
+  # Collapse Ambiguous allele names to remove locus prefix
+  if( sum(grepl("/",Calls)>0 ) ) {
+    Calls <- unlist(lapply(Calls,Format.Allele))
+  }
+
+  # Get loci and initialize table
   Loci <- unique(unlist(lapply(strsplit(Calls,"\\*"),"[",1)))
   if(System=="HLA-") {
     Loci <- c(Loci,DRB345.Exp(Calls[grep("DRB1",Calls)]))
@@ -48,7 +52,10 @@ GL2Tab <- function(x,System) {
   }
   Tab <- Build.Matrix(System,Loci)
 
-  # Populate Table
+  # Check GL String For Locus^Gene Field Consistency
+  CheckString(x,Loci)
+
+  # Populate table
   if(System=="HLA-") { DRB345.Flag <- NULL }
   for(i in Loci) {
 
@@ -58,6 +65,7 @@ GL2Tab <- function(x,System) {
         # Assumptions for DRB345
         DRB.GTYPE <- DRB345.Check.Zygosity(i,Calls[grep("DRB",Calls)])
         Tab[1,grep(i,colnames(Tab))] <- as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')])
+        # for inconsistent DR haplotypes
         if( as.logical(DRB.GTYPE[,'Flag']) ) { DRB345.Flag <- c(DRB345.Flag,i) }
       } else {
         # non-DRB345 alleles

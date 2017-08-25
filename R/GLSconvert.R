@@ -11,12 +11,7 @@
 GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=TRUE,Cores.Lim=1L) {
 
   # Check Parameters
-  if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( is.na(match(System,c("HLA","KIR"))) ) { Err.Log("P.System") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.logical(HZY.Red) ) { Err.Log("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.logical(DRB345.Check) ) { Err.Log("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
+  Check.Params(Convert,Ouput,System,HZY.Red,DRB345.Check,Cores.Lim)
 
   # MultiCore Limitations
   if ( Cores.Lim!=1L ) {

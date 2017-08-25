@@ -83,7 +83,7 @@ DRB345.Exp <- function(DRB1.Genotype,Prefix=TRUE) {
 
 #' HLA trimming function
 #'
-#' Trim a properly formatted HLA allele to desired number of fields.
+#' Trim a properly formatted unambiguous HLA allele to desired number of fields.
 #' @param x HLA allele.
 #' @param Res Resolution desired.
 #' @note This function is for internal use only.
