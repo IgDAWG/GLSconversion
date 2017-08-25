@@ -87,7 +87,7 @@ Homozygous reduction: Should non-dRB345 homozygotes be represent by a single all
 
 Class: Logical (Default=TRUE).
 
-Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged. Inconsistent loci will appear flagged in a separate column. The default behavior will flag unusual haplotypes.
+Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged. Inconsistent loci will appear flagged in a separate column labeled 'DRB.HapFlag' and follow the genotype columns. The default behavior will flag unusual haplotypes.
 
 ## Examples
 
