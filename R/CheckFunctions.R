@@ -8,7 +8,7 @@
 #' @param DRB345.Check Logical Check DR haplotypes for consistency and flag unusual haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
 #' @note This function is for internal use only.
-Check.Params <- function (Convert,Ouput,System,HZY.Red,DRB345.Check,Cores.Lim) {
+Check.Params <- function (Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim) {
 
   if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
   if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }

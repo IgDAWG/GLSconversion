@@ -10,7 +10,9 @@ GL2Tab.wrapper <- function(df,System,Cores) {
   LastCol <- ncol(df)
 
   # Check for ambiguous data at genotype "|"
-  if( sum(grepl("\\|",df[,LastCol]))>0 ) { Err.Log("GTYPE.Amb") ; stop("Conversion stopped.",call.=F) }
+  if( sum(grepl("\\|",df[,LastCol]))>0 ) {
+    Check.Rows <- paste(grep("\\|",df[,LastCol]),collapse=",")
+    Err.Log("GTYPE.Amb",Check.Rows) ; stop("Conversion stopped.",call.=F) }
 
   # Run Conversion
   df.list <- strsplit(df[,LastCol],"\\^")

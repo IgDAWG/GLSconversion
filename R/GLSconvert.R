@@ -11,7 +11,7 @@
 GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=TRUE,Cores.Lim=1L) {
 
   # Check Parameters
-  Check.Params(Convert,Ouput,System,HZY.Red,DRB345.Check,Cores.Lim)
+  Check.Params(Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim)
 
   # MultiCore Limitations
   if ( Cores.Lim!=1L ) {
