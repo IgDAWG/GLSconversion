@@ -6,14 +6,16 @@
 #' @param Output String Type of output.
 #' @param System String Genetic system (HLA or KIR) of the data being converted
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
+#' @param DRB345.Check Logical Check DR haplotypes for consistency and flag unusual haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,Cores.Lim=1L) {
+GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=TRUE,Cores.Lim=1L) {
 
   # Check Parameters
-  if( is.na(match(Conv,c("GL2Tab","Tab2GL"))) ) { Err.Log("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
   if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }
   if( is.na(match(System,c("HLA","KIR"))) ) { Err.Log("P.System") ; stop("Conversion Stopped.",call.=FALSE) }
   if( !is.logical(HZY.Red) ) { Err.Log("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.logical(DRB345.Check) ) { Err.Log("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
   if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
 
   # MultiCore Limitations
@@ -33,7 +35,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,Core
     if( file.exists(Data) ) {
       df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
       fileName <- getName(Data)
-    } else { Err.Log(File.Error,Data) ; stop("Conversion Stopped.",call.=FALSE) }
+    } else { Err.Log("File.Error",Data) ; stop("Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted.txt" }
   df[] <- lapply(df, as.character)
 
@@ -41,6 +43,9 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,Core
   switch(Convert,
          GL2Tab = { data.out <- GL2Tab.wrapper(df,System,Cores) } ,
          Tab2GL = { data.out <- Tab2GL.wrapper(df,System,HZY.Red,Cores) } )
+
+  # Output DRB.HapFlag for HLA data
+  if( System=="HLA-" && !DRB345.Check ) { data.out <- data.out[,-grep('DRB.HapFlag',colnames(data.out))]  }
 
   # Output converted file
   switch(Output,

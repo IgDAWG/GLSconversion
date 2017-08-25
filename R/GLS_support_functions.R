@@ -12,7 +12,7 @@ Err.Log <- function (x, y=NULL) {
          P.Output =  { Error <- "\nInvalid Output parameter. Please see vignette." },
          P.System =  { Error <- "\nInvalid System parameter. Please see vignette." },
          P.HZY = { Error <- "\nInvalid HZY.Red parameter. Please see vignette." },
-         P.DRB = { Error <- "\nInvalid DRB345.Flag parameter. Please see vignette." },
+         P.DRB = { Error <- "\nInvalid DRB345.Check parameter. Please see vignette." },
          P.Cores = { Error <- "\nInvalid Cores.Lim parameter. Please see vignette." },
          Windows.Cores = { Error <- "\nYou have exceed the maximum allowable cores for Windows. Please see vignette." },
          #Notifications
@@ -74,7 +74,7 @@ Build.Matrix <- function(System,Loci) {
 #'
 #' Correctly orders the expanded GL string
 #' @param x Single row of converted GL string
-#' @param Out Single row data frame for mapping converted GL strings
+#' @param Tab.Out Single row data frame for mapping converted GL strings
 Format.Tab <- function(x,Tab.Out) {
 
   Tab.Out[,match(colnames(x),colnames(Tab.Out))] <- x

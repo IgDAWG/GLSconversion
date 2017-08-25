@@ -1,7 +1,7 @@
 ---
 title: "GLSconversion"
 author: "Derek Pappas, Ph.D. (dpappas@chori.org)"
-date: "August 23, 2017"
+date: "August 24, 2017"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using GLSconversion}
@@ -37,7 +37,7 @@ Formatting for table conversion requires three columns. At least one column of i
 Homozygous allele calls for non-DRB345 alleles can be represented as single alleles in the GL string. For example, HLA-A\*01:01:01:01 + HLA-A\*01:01:01:01 can be written as HLA-A*01:01:01:01.  
 
 **HLA-DRB3, HLA-DRB4, and HLA-DRB5**  
-HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)) and can be flagged for inconsistency. Inconsistent haplotypes are written to a file called "Flagged_Haplotypes.txt" in the current working directory, as well as displayed on the R console.
+HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)) and can be flagged for inconsistency. Inconsistent haplotypes will be indicated in a separate column called "DRB.HapFlag" with the locus or loci that are not consistent with the respetive DRB1 status.
 
 **Ambiguity**
 Only ambiguity at the allele level is compatible with the GL conversion tool (separated by "/"). Ambiguity at the genotype (separated by "|") cannot be used with the GL conversion tool and will terminate the script. This includes tables submitted for conversion to GL strings containing rows of identical non-genotype identifying information (sample ID, experiment ID, etc.), these will be considered to be ambiguous genotypes in the table and the conversion tool will stop.
@@ -49,7 +49,7 @@ Data can be output to either a text file (tab or comma delimitted) or R object (
 
 ## Parameters
 
-`GLSconvert(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Flag=FALSE,Cores.Lim=1L)`
+`GLSconvert(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=FALSE,Cores.Lim=1L)`
 
 **Data**
 
@@ -83,11 +83,11 @@ Class: Logical (Default=FALSE).
 
 Homozygous reduction: Should non-dRB345 homozygotes be represent by a single allele name in GL string? For example: HLA-A*01:01:01:01+HLA-A*01:01:01:01 as HLA-A*01:01:01:01. The default behavior to keep both allele names in the GL string. This setting does not impact DRB3, DRB4, or DRB5 genotype calls nor will it impact the genotype list to table conversion (GL2Tab).  
 
-**DRB345.Flag**
+**DRB345.Check**
 
-Class: Logical (Default=FALSE).
+Class: Logical (Default=TRUE).
 
-Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged with an exclamation ('!') appended to genotype. The default behaviour will not flag unusual haplotypes.
+Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged. Inconsistent loci will appear flagged in a separate column. The default behavior will flag unusual haplotypes.
 
 ## Examples
 
@@ -103,17 +103,17 @@ install_github("IgDAWG/GLSconversion", build_vignettes = TRUE) # Requires Pandoc
 install_github("IgDAWG/GLSconversion") # No Pandoc or RStudio
 
 # Run the a GL2Tab conversion on a data file with default output to text file
-GLSconvert(Data="/your/path/to/file/foo.txt", conv="GL2Tab")
+GLSconvert(Data="/your/path/to/file/foo.txt", Convert="GL2Tab")
 
-# Run the a Tab2GL conversion on a R object outputting to a R object
-foo.tab <- GLSconvert(Data=foo, conv="Tab2GL")
+# Run the a Tab2GL conversion on a R object outputting to a R object with no DRB345 Flagging
+foo.tab <- GLSconvert(Data=foo, Convert="Tab2GL", DRB345.Check=FALSE)
 
 # Run the a Tab2GL conversion on a text file outputting to a csv file
-foo.tab <- GLSconvert(Data=foo, conv="Tab2GL", output="csv")
+foo.tab <- GLSconvert(Data=foo, Convert="Tab2GL", output="csv")
 
-# Run the a GL2Tab conversion on a data file without the full path name and with homozygous allele reduction
+# Run the a GL2Tab conversion on a data file without the full path name and with homozygous allele reduction of non-DRB345 alleles
 setwd("/your/path/to/file")
-GLSconvert(Data="foo.txt", conv="GL2Tab", HZY.Red=TRUE)
+GLSconvert(Data="foo.txt", Convert="GL2Tab", HZY.Red=TRUE)
 
 ```
 
