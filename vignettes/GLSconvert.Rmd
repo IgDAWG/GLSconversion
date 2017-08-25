@@ -27,7 +27,7 @@ Formatting for GL string conversion requires that the last column of the data ta
 
 _**Table to GL String**_  
 Formatting for table conversion requires at least three columns. One (or more) column(s) of identifying information followed by column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. Only columns defining genotypes names for each locus may repeat, all other column names must be unique. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions. 
-/
+
 |SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DRB3  | DRB3  |
 |----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
 |Subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |       |       |
