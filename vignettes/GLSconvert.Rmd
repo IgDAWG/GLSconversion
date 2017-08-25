@@ -26,8 +26,8 @@ Formatting for GL string conversion requires that the last column of the data ta
 
 
 _**Table to GL String**_  
-Formatting for table conversion requires at least three columns. One (or more) column(s) of identifying information followed by column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. Only column names for each locus may repeat, all other column names must be unique. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions. 
-
+Formatting for table conversion requires at least three columns. One (or more) column(s) of identifying information followed by column pairs for each locus. Genotype locus pairs must be located in adjacent columns. Column names for a given locus may use (not required) '_1', '.1','_2','.2' to distinguish each locus pair. Only columns defining genotypes names for each locus may repeat, all other column names must be unique. You may format your alleles as Locus*Allele or Allele following defined HLA and KIR naming conventions. 
+/
 |SubjectID |Exp ID  |   A   |   A   |   B   |   B   | DRB1  | DRB1  | DRB3  | DRB3  |
 |----------|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
 |Subject1  |Center1 |01:01  |02:01  |08:01  |44:02  |01:01  |04:01  |       |       |
@@ -37,7 +37,7 @@ Formatting for table conversion requires at least three columns. One (or more) c
 Homozygous allele calls for non-DRB345 alleles can be represented as single alleles in the GL string. For example, HLA-A\*01:01:01:01 + HLA-A\*01:01:01:01 can be written as HLA-A*01:01:01:01.  
 
 **HLA-DRB3, HLA-DRB4, and HLA-DRB5**  
-HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)) and can be flagged for inconsistency. Inconsistent haplotypes will be indicated in a separate column called "DRB.HapFlag" with the locus or loci that are not consistent with the respetive DRB1 status.
+HLA-DRB3, HLA-DRB4, and HLA-DRB5 are parsed for homozygous or hemizygous status based on the DRB1 haplotype as defined by Andersson, 1998 (Andersson G. 1998. Evolution of the HLA-DR region. [Front Biosci. 3:d739-45](http://www.ncbi.nlm.nih.gov/pubmed/9675159)) and can be flagged for inconsistency. Inconsistent haplotypes will be indicated in a separate column called "DRB.HapFlag" with the locus or loci that are inconsistent with the respetive DRB1 status. You may choose not to have haplotypes flagged using the 'DRB345.Check' parameter (see below).
 
 **Ambiguity**
 Only ambiguity at the allele level is compatible with the GL conversion tool (separated by "/"). Ambiguity at the genotype (separated by "|") cannot be used with the GL conversion tool and will terminate the script. This includes tables submitted for conversion to GL strings containing rows of identical non-genotype identifying information (sample ID, experiment ID, etc.), these will be considered to be ambiguous genotypes in the table and the conversion tool will stop.
