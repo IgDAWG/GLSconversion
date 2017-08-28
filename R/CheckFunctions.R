@@ -33,7 +33,7 @@ Check.Data <- function (Data,Convert) {
     if( ncol(Data) < 3 ) { Err.Log("Table.Col") ; stop("Conversion stopped.",call.=F) }
 
     # Check for GL string field delimiters Presence
-    if ( sum(grepl("+",Data[,ncol(Data)])) > 0 || sum(grepl("^",Data[,ncol(Data)])) > 0 || sum(grepl("|",Data[,ncol(Data)])) > 0 ) {
+    if ( sum(grepl("\\+",Data[,ncol(Data)])) > 0 || sum(grepl("\\^",Data[,ncol(Data)])) > 0 || sum(grepl("\\|",Data[,ncol(Data)])) > 0 ) {
       Err.Log("Tab.Format") ; stop("Conversion stopped.",call.=F)
     }
 
@@ -44,7 +44,7 @@ Check.Data <- function (Data,Convert) {
     LastCol <- ncol(Data)
 
     # Check for GL string field delimiters Absence
-    if ( sum(grepl("+",Data[,ncol(Data)])) == 0 || sum(grepl("^",Data[,ncol(Data)])) == 0 || sum(grepl("|",Data[,ncol(Data)])) == 0 ) {
+    if ( sum(grepl("\\+",Data[,LastCol])) == 0 || sum(grepl("\\^",Data[,LastCol])) == 0 || sum(grepl("\\|",Data[,LastCol])) == 0 ) {
       Err.Log("GL.Format") ; stop("Conversion stopped.",call.=F)
     }
 
