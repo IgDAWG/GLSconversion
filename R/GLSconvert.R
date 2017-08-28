@@ -8,9 +8,11 @@
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Check Logical Check DR haplotypes for consistency and flag unusual haplotypes.
 #' @param Cores.Lim Integer How many cores can be used.
-GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=TRUE,Cores.Lim=1L) {
+GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=FALSE,Cores.Lim=1L) {
 
   # Check Parameters
+  if(missing(Data)) { Err.Log("Data.Missing") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(missing(Convert)) { Err.Log("Convert.Missing") ; stop("Conversion Stopped.",call.=FALSE) }
   Check.Params(Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim)
 
   # MultiCore Limitations
@@ -22,7 +24,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
     } else { Cores <- Cores.Lim }
   } else { Cores <- Cores.Lim }
 
-  # Nomenclature system
+  # Set nomenclature system
   if( System == "HLA" ) { System <- "HLA-" }
 
   # Read in Data and Set Output File Name
@@ -33,6 +35,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
     } else { Err.Log("File.Error",Data) ; stop("Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted.txt" }
   df[] <- lapply(df, as.character)
+  df[is.na(df)] <- ""
 
   # Run Conversion
   switch(Convert,

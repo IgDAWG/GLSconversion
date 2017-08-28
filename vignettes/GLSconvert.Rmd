@@ -17,6 +17,13 @@ Tools for cross converting HLA or KIR genotyping data from text strings to multi
 
 Data may be passed to GLSconvert as a tab delimited text file name (full path recommended) or as a R object (data frame). Whether a text file or an R object, the first row must be a header line and include column names for the GL string/locus genotypes. Any column preceeding the genotyping information is considered to be identifying/miscellanous information. This would generally include at least the sample id. While there is no limit to the number of columns, there is a requirement to column ordering depending on the conversion direction.  
 
+**Anatomy of a GL String**  
+Below is a picture of a genotype List (GL) String representation of a multilocus unphased genotype. A GL String representing HLA-A genotype (A*02:69 and A*23:30, or A*02:302 and, either A*23:26 or A*23:39) and HLA-B genotype (B*44:02:13 and B*49:08) for a single individual is shown. GL String delimiters are parsed hierarchically starting from the locus delimiter (^), proceeding to the genotype delimiter (|), then the chromosome delimiter (+), and ending with the allele delimiter (/).
+
+
+![](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3715123/bin/tan0082-0106-f1.jpg)
+  
+
 _**GL String to Table**_  
 Formatting for GL string conversion requires that the last column of the data table must contain the GL string.
 
@@ -85,7 +92,7 @@ Homozygous reduction: Should non-dRB345 homozygotes be represent by a single all
 
 **DRB345.Check**
 
-Class: Logical (Default=TRUE).
+Class: Logical (Default=FALSE).
 
 Indicates whether DR haplotypes should be parsed for correct zygosity and unusual DR haplotypes flagged. Inconsistent loci will appear flagged in a separate column labeled 'DRB.HapFlag' and follow the genotype columns. The default behavior will flag unusual haplotypes.
 
@@ -106,10 +113,10 @@ install_github("IgDAWG/GLSconversion") # No Pandoc or RStudio
 GLSconvert(Data="/your/path/to/file/foo.txt", Convert="GL2Tab")
 
 # Run the a Tab2GL conversion on a R object outputting to a R object with no DRB345 Flagging
-foo.tab <- GLSconvert(Data=foo, Convert="Tab2GL", DRB345.Check=FALSE)
+foo.tab <- GLSconvert(Data=foo, Convert="Tab2GL", Output="R", DRB345.Check=FALSE)
 
 # Run the a Tab2GL conversion on a text file outputting to a csv file
-foo.tab <- GLSconvert(Data=foo, Convert="Tab2GL", output="csv")
+GLSconvert(Data=foo, Convert="Tab2GL", output="csv")
 
 # Run the a GL2Tab conversion on a data file without the full path name and with homozygous allele reduction of non-DRB345 alleles
 setwd("/your/path/to/file")

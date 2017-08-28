@@ -11,6 +11,8 @@ Err.Log <- function (x, y=NULL, z=NULL) {
   switch(x,
 
          #Parameters
+         Data.Missing = { Error <- "\nNo 'Data' specified. This parament is not optional. Please see vignette." },
+         Convert.Missing = { Error <- "\nNo 'Convert' specified. This parament is not optional. Please see vignette."},
          P.Convert = { Error <- "\nInvalid Convert parameter. Please see vignette." },
          P.Output =  { Error <- "\nInvalid Output parameter. Please see vignette." },
          P.System =  { Error <- "\nInvalid System parameter. Please see vignette." },
@@ -24,7 +26,8 @@ Err.Log <- function (x, y=NULL, z=NULL) {
          GTYPE.Amb = { Error <- paste("\nThis appears to contain genotype list piping ('|') for genotype ambiguity strings (data rows: ",y,"). This is not supported in GLSconversion.",sep="") },
          Table.Col = { Error <- "\nThe table for Tab2GL conversion is not properly formatted, too few columns. Please see vignette." },
          Table.Amb = { Error <- "\nYour data has duplicate identifying information rows, perhaps due to data genotype ambiguity." },
-         Locus.MultiField = { Error <- paste("\nYour GL string may be invalid. A locus cannot appear in multiple gene fields! ",z,ifelse(grepl(",",z)," appear"," appears")," in multiple fields of the GL string: ", y, sep="")  }
+         Locus.MultiField = { Error <- paste("\nYour GL string may be invalid. A locus cannot appear in multiple gene fields! ",z,ifelse(grepl(",",z)," appear"," appears")," in multiple fields of the GL string: ", y, ". Please see vignette.",sep="") },
+         Allele.Amb.Format = { Error <- paste("\nYour GL string may be invalid. The ambiguous allele ",y," is not properly formatted. Please see vignette.", sep="") }
   )
 
   cat(Error,"\n")

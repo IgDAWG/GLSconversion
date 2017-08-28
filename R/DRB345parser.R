@@ -51,9 +51,8 @@ DRB345.Check.Zygosity <- function(Locus,Genotype) {
 #'
 #' Checks DRB1 Genotype and Returns Expected DR345 Loci
 #' @param DRB1.Genotype DRB1 Subject Genotypes
-#' @param Prefix Should the HLA- prefix be appended to genotype calls
 #' @note This function is for internal use only.
-DRB345.Exp <- function(DRB1.Genotype,Prefix=TRUE) {
+DRB345.Exp <- function(DRB1.Genotype) {
 
   #Checks for and fixes certain DRB345 errors that are consistent with known DR haplotypes
   Rules <- list("DRB1*01"="^","DRB1*10"="^","DRB1*08"="^",

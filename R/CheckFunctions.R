@@ -25,7 +25,7 @@ Check.Params <- function (Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim) 
 #' @param x GL String to check against
 #' @param Loci Loci to check
 #' @note This function is for internal use only.
-CheckString <- function(x,Loci) {
+CheckString.Locus <- function(x,Loci) {
 
   test <- sapply(Loci,FUN = function(z) regexpr(z,x) )
   test[test==-1] <- NA
@@ -39,5 +39,28 @@ CheckString <- function(x,Loci) {
 
   }
 
+  return("ok")
+
 }
 
+#' GL String Allele Check
+#'
+#' GL String check for allele ambiguity formatting
+#' @param x  GL String to check against
+#' @note This function is for internal use only.
+CheckString.Allele <- function(x) {
+
+  x <- as.character(x)
+
+  if(grepl("/",x)) {
+      tmp <- strsplit(unlist(strsplit(x,"/")),"\\*")
+      tmp.len <- length(unique(lapply(tmp,length)))
+      if( tmp.len > 1 ) {
+        Err.Log("Allele.Amb.Format",x)
+        stop("Conversion Stopped.",call.=FALSE)
+      }
+    }
+
+  return("ok")
+
+}

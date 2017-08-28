@@ -54,19 +54,48 @@ Format.Tab <- function(x,Tab.Out) {
 
 }
 
-#' Remove Locus Names for Ambiguous Alleles
+#' Remove or Append Locus Names for Ambiguous Alleles
 #'
-#' Remove Locus name for each allele in an ambiguous allele string
-#' @param x Allele
+#' Remove or Append Locus name from/to allele in an ambiguous allele string
+#' @param x Allele String
+#' @param Type String specifying whether to remove or append locus prefix
 #' @note This function is for internal use only.
-Format.Allele <- function(x) {
+Format.Allele <- function(x,Type) {
 
-  if(grepl("/",x)) {
-    tmp <- strsplit(unlist(strsplit(x,"/")),"\\*")
-    tmp <- paste(unlist(lapply(tmp,"[",1)[1]),
-           paste(unlist(lapply(tmp,"[",2)),collapse="/"),
-           sep="*")
-  } else { tmp <- x }
-  return(tmp)
+  if(Type=="off") {
+    if(grepl("/",x)) {
+      tmp <- strsplit(unlist(strsplit(x,"/")),"\\*")
+      Fix <- paste(unlist(lapply(tmp,"[",1)[1]),
+             paste(unlist(lapply(tmp,"[",2)),collapse="/"),
+             sep="*")
+    } else { Fix <- x }
+  }
+
+  if(Type=="on"){
+   if(grepl("/",x)) {
+      Locus <- unlist(strsplit(x,"\\*"))[1]
+      Fix <- paste(
+              paste(
+               Locus,unlist(strsplit(unlist(strsplit(x,"\\*"))[2],"/"))
+               ,sep="*")
+             ,collapse="/")
+   } else { Fix <- x }
+  }
+
+  return(Fix)
+}
+
+#' Append Genetic System Locus Designation to Allele String
+#'
+#' Adds genetic system (HLA/KIR) to each allele name
+#' @param x Vector Column genotypes to append
+#' @param df.name String SystemLocus name for each allele.
+#' @note This function is for internal use only.
+Append.System <- function(x,df.name) {
+
+  getAllele <- which(x!="")
+  x[getAllele] <- paste(df.name,x[getAllele],sep="*")
+  return(x)
 
 }
+
