@@ -22,6 +22,8 @@ Err.Log <- function (x, y=NULL, z=NULL) {
          Windows.Cores = { Error <- "\nYou have exceed the maximum allowable cores for Windows. Please see vignette." },
 
          #Notifications
+         Tab.Format = { Error <- "\nThe conversion tool encountered GL string delimiters. This isn't valid data Tab2GL converion. Please see vignette." },
+         GL.Format = { Error <- "\nYour GL strings may not be properly formatted. The conversion tool did not encounter the classic GL string delimiters. Please see vignette." },
          File.Error = { Error <- paste("\nThe conversion tool could not locate a file labeled ",y," in the specificied working directory.",sep="") },
          GTYPE.Amb = { Error <- paste("\nThis appears to contain genotype list piping ('|') for genotype ambiguity strings (data rows: ",y,"). This is not supported in GLSconversion.",sep="") },
          Table.Col = { Error <- "\nThe table for Tab2GL conversion is not properly formatted, too few columns. Please see vignette." },

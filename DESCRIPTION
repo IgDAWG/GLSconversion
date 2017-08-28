@@ -1,7 +1,7 @@
 Package: GLSconversion
 Type: Package
 Title: Genotype List String Cross Conversion Tool
-Version: 1.2.1
+Version: 1.2.2
 Date: 2017-08-28
 Author: Derek Pappas <dpappas@chori.org>, Steve Mack <sjmack@chori.org>
 Maintainer: Steve Mack <sjmack@chori.org>

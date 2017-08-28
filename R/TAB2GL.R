@@ -8,9 +8,6 @@
 #' @note This function is for internal use only.
 Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
 
-  # Check for column formatting consistency
-  if( ncol(df) < 3 ) { Err.Log("Table.Col") ; stop("Conversion stopped.",call.=F) }
-
   # Define data locus columns assuming Locus columns come in pairs
   colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
   DataCol <- as.numeric(sapply(names(which(table(colnames(df))==2)), FUN=function(x) grep(x,colnames(df))))

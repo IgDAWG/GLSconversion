@@ -11,11 +11,6 @@ GL2Tab.wrapper <- function(df,System,Cores) {
   LastCol <- ncol(df)
   MiscCol <- seq(1,ncol(df)-1)
 
-  # Check for ambiguous data at genotype "|"
-  if( sum(grepl("\\|",df[,LastCol]))>0 ) {
-    Check.Rows <- paste(grep("\\|",df[,LastCol]),collapse=",")
-    Err.Log("GTYPE.Amb",Check.Rows) ; stop("Conversion stopped.",call.=F) }
-
   # Run Conversion
   df.list <- strsplit(df[,LastCol],"\\^")
   Tab <- parallel::mclapply(df.list,FUN=GL2Tab,System=System,mc.cores=Cores)

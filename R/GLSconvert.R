@@ -38,7 +38,10 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   df[] <- lapply(df, as.character)
   df[is.na(df)] <- ""
 
-  # Run Conversion
+  # Check Data Structure
+  Check.Data(df,Convert)
+
+  # Run Data Conversion
   switch(Convert,
          GL2Tab = { data.out <- GL2Tab.wrapper(df,System,Cores) } ,
          Tab2GL = { data.out <- Tab2GL.wrapper(df,System,HZY.Red,Cores) } )

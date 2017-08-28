@@ -1,4 +1,4 @@
-#' Check Input Parameterss
+#' Check Input Parameters
 #'
 #' Check input parameters for invalid entries.
 #' @param Convert String Direction for conversion.
@@ -16,6 +16,43 @@ Check.Params <- function (Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim) 
   if( !is.logical(HZY.Red) ) { Err.Log("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
   if( !is.logical(DRB345.Check) ) { Err.Log("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
   if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
+
+}
+
+#' Check Data Structure
+#'
+#' Check data structure for successfuly conversion.
+#' @param Data String Type of output.
+#' @param Convert String Direction for conversion.
+#' @note This function is for internal use only.
+Check.Data <- function (Data,Convert) {
+
+  if(Convert=="Tab2GL") {
+
+    # Check for column formatting consistency
+    if( ncol(Data) < 3 ) { Err.Log("Table.Col") ; stop("Conversion stopped.",call.=F) }
+
+    # Check for GL string field delimiters Presence
+    if ( sum(grepl("+",Data[,ncol(Data)])) > 0 || sum(grepl("^",Data[,ncol(Data)])) > 0 || sum(grepl("|",Data[,ncol(Data)])) > 0 ) {
+      Err.Log("Tab.Format") ; stop("Conversion stopped.",call.=F)
+    }
+
+  }
+
+  if(Convert=="GL2Tab") {
+
+    LastCol <- ncol(Data)
+
+    # Check for GL string field delimiters Absence
+    if ( sum(grepl("+",Data[,ncol(Data)])) == 0 || sum(grepl("^",Data[,ncol(Data)])) == 0 || sum(grepl("|",Data[,ncol(Data)])) == 0 ) {
+      Err.Log("GL.Format") ; stop("Conversion stopped.",call.=F)
+    }
+
+    # Check for ambiguous data at genotype "|"
+    if( sum(grepl("\\|",df[,LastCol]))>0 ) {
+      Check.Rows <- paste(grep("\\|",df[,LastCol]),collapse=",")
+      Err.Log("GTYPE.Amb",Check.Rows) ; stop("Conversion stopped.",call.=F) }
+  }
 
 }
 
