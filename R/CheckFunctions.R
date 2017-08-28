@@ -44,7 +44,7 @@ Check.Data <- function (Data,Convert) {
     LastCol <- ncol(Data)
 
     # Check for GL string field delimiters Absence
-    if ( sum(grepl("\\+",Data[,LastCol])) == 0 || sum(grepl("\\^",Data[,LastCol])) == 0 || sum(grepl("\\|",Data[,LastCol])) == 0 ) {
+    if ( sum(grepl("\\+",Data[,LastCol])) == 0 && sum(grepl("\\^",Data[,LastCol])) == 0 && sum(grepl("\\|",Data[,LastCol])) == 0 ) {
       Err.Log("GL.Format") ; stop("Conversion stopped.",call.=F)
     }
 
