@@ -18,6 +18,21 @@ getName <- function(x) {
 
 }
 
+#' Replace absent allele strings
+#'
+#' Replaces allowable absent allele strings with ^ symbol.
+#' @param df Genotypes dataframe.
+#' @param LA Is this formatted as Locus*Allele
+#' @note This function is for internal use only.
+rmABstrings <- function(df,GL) {
+  df[,3:ncol(df)] <- apply(df[,3:ncol(df)], MARGIN=c(1,2), FUN=function(x) gsub("ABSENT|Absent|absent|Abs|ABS|ab|Ab|AB","",x) )
+  df[df=="00"] <- ""
+  df[df=="00:00"] <- ""
+  df[df=="00:00:00"] <- ""
+  df[df=="00:00:00:00"] <- ""
+  return(df)
+}
+
 #' Build Output Matrix for GL2Tab Conversion
 #'
 #' Initializes output matrix format for GL2Tab conversion

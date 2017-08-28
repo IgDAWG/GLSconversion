@@ -30,7 +30,8 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   # Read in Data and Set Output File Name
   if( is.character(Data) ) {
     if( file.exists(Data) ) {
-      df <- read.table(file=Data,header=T,sep="\t",stringsAsFactors=FALSE)
+      NAstrings=c("NA","","****","-","na","Na")
+      df <- read.table(file=Data,header=T,sep="\t", stringsAsFactors=FALSE, na.strings=NAstrings, fill=T, comment.char = "#", strip.white=T, blank.lines.skip=T, colClasses="character")
       fileName <- getName(Data)
     } else { Err.Log("File.Error",Data) ; stop("Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted.txt" }

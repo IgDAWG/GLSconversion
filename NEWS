@@ -1,0 +1,4 @@
+BIGDAWG v1.2.1 (Release date: 2015-11-09) Derek Pappas <dpappas@chori.org>
+====================================================================================
+Changes:
+* Allow for 00:00 designation for missing alleles due to structural variation.

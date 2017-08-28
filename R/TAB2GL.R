@@ -51,6 +51,7 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
 #' @note This function is for internal use only.
 Tab2GL <- function(x,System,HZY.Red) {
 
+  #x <- rmABstrings(x)
   x <- x[which(x!="")]
   colnames(x) <- sapply(colnames(x),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
   Loci <- unique(colnames(x))
@@ -75,7 +76,7 @@ Tab2GL <- function(x,System,HZY.Red) {
           if( sum(grepl("DRB1",x))>0 ) {
             DRB.GTYPE <- DRB345.Check.Zygosity(i, x[grep("DRB",x)] )
             DRB.GTYPE[grepl("\\^",DRB.GTYPE)] <- NA
-            A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2']
+            A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2'] ; Alleles <- c(A1,A2)
             if(DRB.GTYPE$Flag) {
               # DRB345 is not consistent
               if( as.logical(DRB.GTYPE[,'Flag']) ) { DRB345.Flag <- c(DRB345.Flag,i) }
