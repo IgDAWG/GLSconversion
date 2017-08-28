@@ -49,8 +49,8 @@ Check.Data <- function (Data,Convert) {
     }
 
     # Check for ambiguous data at genotype "|"
-    if( sum(grepl("\\|",df[,LastCol]))>0 ) {
-      Check.Rows <- paste(grep("\\|",df[,LastCol]),collapse=",")
+    if( sum(grepl("\\|",Data[,LastCol]))>0 ) {
+      Check.Rows <- paste(grep("\\|",Data[,LastCol]),collapse=",")
       Err.Log("GTYPE.Amb",Check.Rows) ; stop("Conversion stopped.",call.=F) }
   }
 
