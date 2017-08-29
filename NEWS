@@ -1,6 +1,7 @@
 BIGDAWG v1.3 (Release date: 2017-08-28) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
+* Bug Fixes
 * Allow for 00:00 designation for missing alleles due to structural variation.
 
 BIGDAWG v1.2.2 (Release date: 2017-08-28) Derek Pappas <dpappas@chori.org>
@@ -8,3 +9,4 @@ BIGDAWG v1.2.2 (Release date: 2017-08-28) Derek Pappas <dpappas@chori.org>
 Changes:
 * Added data structure consistency checks prior to running conversion.
 * Code re-ogranization for clarity
+* News file introduced.
