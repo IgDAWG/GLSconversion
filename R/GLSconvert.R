@@ -34,11 +34,11 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
       df <- read.table(file=Data,header=T,sep="\t", stringsAsFactors=FALSE, na.strings=NAstrings, fill=T, comment.char = "#", strip.white=T, blank.lines.skip=T, colClasses="character")
       fileName <- getName(Data)
     } else { Err.Log("File.Error",Data) ; stop("Conversion Stopped.",call.=FALSE) }
-  } else { df <- Data ; fileName <- "Converted.txt" }
+  } else { df <- Data ; fileName <- "Converted" }
   df[] <- lapply(df, as.character)
   df[is.na(df)] <- ""
 
-  # Check Data Structure
+  # Check Data Structure/Formatting
   Check.Data(df,Convert)
 
   # Run Data Conversion
@@ -49,7 +49,13 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   # Output DRB.HapFlag for HLA data
   if( System=="HLA-" && !DRB345.Check ) { data.out <- data.out[,-grep('DRB.HapFlag',colnames(data.out))]  }
 
-  # Output converted file
+  # File Name Ouput Options
+  switch(Output,
+         txt = { fileName <- paste(fileName,".txt",sep="") },
+         csv = { fileName <- paste(fileName,".csv",sep="") },
+         pypop = { fileName <- paste(fileName,".pop",sep="") } )
+
+  # Output Final Converted File
   switch(Output,
          R = return(data.out),
          txt = write.table(data.out,file=fileName,sep="\t",quote=F,col.names=T,row.names=F),

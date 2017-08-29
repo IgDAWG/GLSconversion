@@ -6,6 +6,8 @@
 #' @note This function is for internal use only.
 DRB345.Check.Zygosity <- function(Locus,Genotype) {
 
+  Genotype <- rmABstrings.GLC(Genotype) ; Genotype <- Genotype[which(Genotype!="")]
+
   DR.out <- data.frame(Locus_1=character(), Locus_2=character(), Flag=character(), stringsAsFactors=F)
   Abs <- paste(Locus,"*^",sep="")
 

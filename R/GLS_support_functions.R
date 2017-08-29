@@ -14,23 +14,19 @@ getName <- function(x) {
     outName <- paste(tmpDir,"/Converted_",tmpName,sep="")
   }
 
+  outName <- gsub(".txt","",outName)
   return(outName)
 
 }
 
-#' Replace absent allele strings
+#' Replace 00:00 allele strings
 #'
-#' Replaces allowable absent allele strings with ^ symbol.
-#' @param df Genotypes dataframe.
-#' @param LA Is this formatted as Locus*Allele
+#' Replaces 00:00 absent allele strings with a blank.
+#' @param x Genotypes dataframe.
 #' @note This function is for internal use only.
-rmABstrings <- function(df,GL) {
-  df[,3:ncol(df)] <- apply(df[,3:ncol(df)], MARGIN=c(1,2), FUN=function(x) gsub("ABSENT|Absent|absent|Abs|ABS|ab|Ab|AB","",x) )
-  df[df=="00"] <- ""
-  df[df=="00:00"] <- ""
-  df[df=="00:00:00"] <- ""
-  df[df=="00:00:00:00"] <- ""
-  return(df)
+rmABstrings.GLC <- function(x) {
+  x[grep("\\*00",x)] <- ""
+  return(x)
 }
 
 #' Build Output Matrix for GL2Tab Conversion

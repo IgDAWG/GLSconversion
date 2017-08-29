@@ -48,7 +48,6 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
 #' @note This function is for internal use only.
 Tab2GL <- function(x,System,HZY.Red) {
 
-  #x <- rmABstrings(x)
   x <- x[which(x!="")]
   colnames(x) <- sapply(colnames(x),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
   Loci <- unique(colnames(x))
@@ -91,6 +90,7 @@ Tab2GL <- function(x,System,HZY.Red) {
   } # fi Loci Loop
 
   # Condense Chromosomes (^)
+  GLS <- as.character(na.omit(GLS))
   GLS <- paste(GLS,collapse="^")
 
   if(System=="HLA-") {

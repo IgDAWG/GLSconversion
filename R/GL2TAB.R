@@ -37,7 +37,6 @@ GL2Tab <- function(x,System) {
 
   # Break GL String and Remove Any Absent Call Type Strings (00:00)
   Calls <- unlist(sapply(x,FUN=function(x) strsplit(x,"\\+"))) ; names(Calls) <- NULL
-  #Calls <- Calls[which(Calls!="")]
 
   # Check GL String For Locus*Allele/Locus*Allele Ambiguity Formatting
   invisible(sapply(Calls,CheckString.Allele))
