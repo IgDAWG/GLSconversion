@@ -3,9 +3,10 @@
 #' Expands GL strings to columns of adjacent locus pairs.
 #' @param df Data frame containing GL strings
 #' @param System Character Genetic system HLA or KIR
-#' @param Cores Integer How many cores can be used.
-#' @note This function is for internal use only.
-GL2Tab.wrapper <- function(df,System,Cores) {
+#' @param Strip.Prefix Logical Should System/Locus prefixes be stripped from table data.
+#' @param Cores Integer How many cores can be used
+#' @note This function is for internal use only
+GL2Tab.wrapper <- function(df,System,Strip.Prefix,Cores) {
 
   # Data column
   LastCol <- ncol(df)
@@ -22,7 +23,12 @@ GL2Tab.wrapper <- function(df,System,Cores) {
     Tab[Tab==0] <- ""
     Tab[grepl("\\^",Tab)] <- ""
 
+  # Strip Prefixes
+  if(Strip.Prefix) { Tab[,seq(1,ncol(Tab)-1)] <- apply(Tab[,seq(1,ncol(Tab)-1)],MARGIN=c(1,2),FUN=Stripper) }
+
+  # Final Table with Misc Information Appended
   Tab <- cbind(df[,MiscCol],Tab)
+
   return(Tab)
 
 }

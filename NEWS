@@ -1,3 +1,9 @@
+BIGDAWG v1.4 (Release date: 2017-08-30) Derek Pappas <dpappas@chori.org>
+====================================================================================
+Changes:
+* Bug Fixes
+* Allow for System/Locus prefix stripping using Strip.Prefix parameter
+
 BIGDAWG v1.3 (Release date: 2017-08-28) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:

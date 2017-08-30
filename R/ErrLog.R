@@ -5,7 +5,7 @@
 #' @param y Misc information relevant to error.
 #' @param z Misc information relevant to error.
 #' @note This function is for internal use only.
-Err.Log <- function (x, y=NULL, z=NULL) {
+Err.Log.GLS <- function (x, y=NULL, z=NULL) {
 
   cat("*****ERROR!******\n")
   switch(x,

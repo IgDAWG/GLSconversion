@@ -79,7 +79,7 @@ Format.Allele <- function(x,Type) {
       Fix <- paste(unlist(lapply(tmp,"[",1)[1]),
              paste(unlist(lapply(tmp,"[",2)),collapse="/"),
              sep="*")
-    } else { Fix <- x }
+    } else {  Fix <- x }
   }
 
   if(Type=="on"){
@@ -110,3 +110,14 @@ Append.System <- function(x,df.name) {
 
 }
 
+#' Removes System and Locus from Alleles
+#'
+#' Removes the System and Locus designations for alleles calls in GL2Tab
+#' @param x Allele
+#' @note This function is for internal use only.
+Stripper <- function(x) {
+
+  if(x!="") { Fix <- unlist(strsplit(x,"\\*"))[2] } else { Fix <- "" }
+  return(Fix)
+
+}

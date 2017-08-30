@@ -16,7 +16,7 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
   # Check for identical rows of miscellanous information from non-data columns. Ambiguous Data Flag.
   Misc.tmp <- apply(df[,MiscCol],MARGIN=1,FUN=paste,collapse=":")
   if( length(which(table(Misc.tmp)>1))>0 ) {
-    Err.Log("Table.Amb") ; stop("Conversion stopped.",call.=F)
+    Err.Log.GLS("Table.Amb") ; stop("Conversion stopped.",call.=F)
   }; rm(Misc.tmp)
 
   # Pre-format data to SystemLoci*Allele if necessary

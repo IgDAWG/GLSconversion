@@ -10,12 +10,12 @@
 #' @note This function is for internal use only.
 Check.Params <- function (Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim) {
 
-  if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( is.na(match(System,c("HLA","KIR"))) ) { Err.Log("P.System") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.logical(HZY.Red) ) { Err.Log("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.logical(DRB345.Check) ) { Err.Log("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log.GLS("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log.GLS("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(System,c("HLA","KIR"))) ) { Err.Log.GLS("P.System") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.logical(HZY.Red) ) { Err.Log.GLS("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.logical(DRB345.Check) ) { Err.Log.GLS("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log.GLS("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
 
 }
 
@@ -30,11 +30,11 @@ Check.Data <- function (Data,Convert) {
   if(Convert=="Tab2GL") {
 
     # Check for column formatting consistency
-    if( ncol(Data) < 3 ) { Err.Log("Table.Col") ; stop("Conversion stopped.",call.=F) }
+    if( ncol(Data) < 3 ) { Err.Log.GLS("Table.Col") ; stop("Conversion stopped.",call.=F) }
 
     # Check for GL string field delimiters Presence
     if ( sum(grepl("\\+",Data[,ncol(Data)])) > 0 || sum(grepl("\\^",Data[,ncol(Data)])) > 0 || sum(grepl("\\|",Data[,ncol(Data)])) > 0 ) {
-      Err.Log("Tab.Format") ; stop("Conversion stopped.",call.=F)
+      Err.Log.GLS("Tab.Format") ; stop("Conversion stopped.",call.=F)
     }
 
   }
@@ -45,13 +45,13 @@ Check.Data <- function (Data,Convert) {
 
     # Check for GL string field delimiters Absence
     if ( sum(grepl("\\+",Data[,LastCol])) == 0 && sum(grepl("\\^",Data[,LastCol])) == 0 && sum(grepl("\\|",Data[,LastCol])) == 0 ) {
-      Err.Log("GL.Format") ; stop("Conversion stopped.",call.=F)
+      Err.Log.GLS("GL.Format") ; stop("Conversion stopped.",call.=F)
     }
 
     # Check for ambiguous data at genotype "|"
     if( sum(grepl("\\|",Data[,LastCol]))>0 ) {
       Check.Rows <- paste(grep("\\|",Data[,LastCol]),collapse=",")
-      Err.Log("GTYPE.Amb",Check.Rows) ; stop("Conversion stopped.",call.=F) }
+      Err.Log.GLS("GTYPE.Amb",Check.Rows) ; stop("Conversion stopped.",call.=F) }
   }
 
 }
@@ -71,7 +71,7 @@ CheckString.Locus <- function(x,Loci) {
 
     Loci.Err <- paste(Loci[which(test.CS>1)],collapse=",")
     GLS <- paste(x,collapse="^")
-    Err.Log("Locus.MultiField",GLS,Loci.Err)
+    Err.Log.GLS("Locus.MultiField",GLS,Loci.Err)
     stop("Conversion Stopped.",call.=FALSE)
 
   }
@@ -93,7 +93,7 @@ CheckString.Allele <- function(x) {
       tmp <- strsplit(unlist(strsplit(x,"/")),"\\*")
       tmp.len <- length(unique(lapply(tmp,length)))
       if( tmp.len > 1 ) {
-        Err.Log("Allele.Amb.Format",x)
+        Err.Log.GLS("Allele.Amb.Format",x)
         stop("Conversion Stopped.",call.=FALSE)
       }
     }
