@@ -8,8 +8,9 @@
 #' @param HZY.Red Logical Reduction of homozygote genotypes to single allele.
 #' @param DRB345.Check Logical Check DR haplotypes for consistency and flag unusual haplotypes.
 #' @param Strip.Prefix Logical Should System/Locus prefixes be stripped from table data.
+#' @param Abs.Fill Logical Should absent loci special designations be used.
 #' @param Cores.Lim Integer How many cores can be used.
-GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=FALSE,Strip.Prefix=TRUE,Cores.Lim=1L) {
+GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=FALSE,Strip.Prefix=TRUE,Abs.Fill=FALSE,Cores.Lim=1L) {
 
   # Check Parameters
   if(missing(Data)) { Err.Log.GLS("Data.Missing") ; stop("Conversion Stopped.",call.=FALSE) }
@@ -17,13 +18,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   Check.Params(Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim)
 
   # MultiCore Limitations
-  if ( Cores.Lim!=1L ) {
-    Cores.Max <- as.integer( floor( parallel::detectCores() * 0.9) )
-    if(Sys.info()['sysname']=="Windows" && as.numeric(Cores.Lim)>1) {
-      Err.Log.GLS("Windows.Cores") ; stop("Conversion stopped.",call. = F)
-    } else if( Cores.Lim > Cores.Max ) { Cores <- Cores.Max
-    } else { Cores <- Cores.Lim }
-  } else { Cores <- Cores.Lim }
+  Cores <- Check.Cores(Cores.Lim)
 
   # Set nomenclature system and Prefix stripping for pypop output
   if( System == "HLA" ) { System <- "HLA-" }
@@ -32,24 +27,23 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   # Read in Data and Set Output File Name
   if( is.character(Data) ) {
     if( file.exists(Data) ) {
-      NAstrings=c("NA","","****","-","na","Na")
-      df <- read.table(file=Data,header=T,sep="\t", stringsAsFactors=FALSE, na.strings=NAstrings, fill=T, comment.char = "#", strip.white=T, blank.lines.skip=T, colClasses="character")
+      df <- read.table(file=Data,header=T,sep="\t", stringsAsFactors=FALSE, fill=T, comment.char = "#", strip.white=T, blank.lines.skip=T, colClasses="character")
       fileName <- getName(Data)
     } else { Err.Log.GLS("File.Error",Data) ; stop("Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted" }
   df[] <- lapply(df, as.character)
   df[is.na(df)] <- ""
 
-  # Check Data Structure/Formatting
+  # Check Data Structure/Formatting and Ab
   Check.Data(df,Convert)
 
   # Run Data Conversion
   switch(Convert,
-         GL2Tab = { data.out <- GL2Tab.wrapper(df,System,Strip.Prefix,Cores) } ,
-         Tab2GL = { data.out <- Tab2GL.wrapper(df,System,HZY.Red,Cores) } )
+         GL2Tab = { data.out <- GL2Tab.wrapper(df,System,Strip.Prefix,Abs.Fill,Cores) } ,
+         Tab2GL = { data.out <- Tab2GL.wrapper(df,System,HZY.Red,Abs.Fill,Cores) } )
 
   # Output DRB.HapFlag for HLA data
-  if( System=="HLA-" && DRB345.Check ) { data.out <- data.out[,-grep('DRB.HapFlag',colnames(data.out))]  }
+  if( System=="HLA-" && !DRB345.Check ) { data.out <- data.out[,-grep('DR.HapFlag',colnames(data.out))]  }
 
   # File Name Ouput Options
   switch(Output,

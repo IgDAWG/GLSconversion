@@ -22,11 +22,27 @@ getName <- function(x) {
 #' Replace 00:00 allele strings
 #'
 #' Replaces 00:00 absent allele strings with a blank.
-#' @param x Genotypes dataframe.
+#' @param x Genotype Column.
+#' @param Locus Locus column to adjust.
+#' @param Type String specifying whether to pad ('Fill') or leave blank ('Remove') absent calls
 #' @note This function is for internal use only.
-rmABstrings.GLC <- function(x) {
-  x[grep("\\*00",x)] <- ""
+Filler <- function(x,Locus=NULL,Type) {
+
+  if (Type=="Fill") {
+    which(x=="")
+    Locus <- gsub("_1|_2","",Locus)
+    x[which(x=="")] <- paste(Locus,"*00:00",sep="")
+
+  }
+
+  if (Type=="Remove") {
+
+    x[grep("\\*00",x)] <- ""
+
+  }
+
   return(x)
+
 }
 
 #' Build Output Matrix for GL2Tab Conversion
@@ -37,11 +53,10 @@ rmABstrings.GLC <- function(x) {
 #' @note This function is for internal use only.
 Build.Matrix <- function(System,Loci) {
 
-  if( sum(grepl("DRB.HapFlag",Loci))>0 ) { Loci <- Loci[-grep("DRB.HapFlag",Loci)] }
   Loci.Grp <- rep(Loci,each=2)
 
   if(System=="HLA-") {
-    Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)+1) ; colnames(Out) <- c(Loci.Grp,"DRB.HapFlag")
+    Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)+1) ; colnames(Out) <- c(Loci.Grp,"DR.HapFlag")
   } else {
     Out <- mat.or.vec(nr=1,nc=length(Loci.Grp)) ; colnames(Out) <- Loci.Grp
   }
@@ -56,12 +71,12 @@ Build.Matrix <- function(System,Loci) {
 #'
 #' Correctly orders the expanded GL string
 #' @param x Single row of converted GL string
-#' @param Tab.Out Single row data frame for mapping converted GL strings
+#' @param Order Single row data frame for mapping converted GL strings
 #' @note This function is for internal use only.
-Format.Tab <- function(x,Tab.Out) {
+Format.Tab <- function(x,Order) {
 
-  Tab.Out[,match(colnames(x),colnames(Tab.Out))] <- x
-  return(Tab.Out)
+  Order[,match(colnames(x),colnames(Order))] <- x
+  return(Order)
 
 }
 
@@ -69,7 +84,7 @@ Format.Tab <- function(x,Tab.Out) {
 #'
 #' Remove or Append Locus name from/to allele in an ambiguous allele string
 #' @param x Allele String
-#' @param Type String specifying whether to remove or append locus prefix
+#' @param Type String specifying whether to strip ('off') or append ('on') locus prefix
 #' @note This function is for internal use only.
 Format.Allele <- function(x,Type) {
 

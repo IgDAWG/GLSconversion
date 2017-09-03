@@ -4,9 +4,10 @@
 #' @param df Data frame containing GL strings
 #' @param System Character Genetic system HLA or KIR
 #' @param HZY.Red Logical Should homozygote genotypes be a single allele for non-DRB345.
+#' @param Abs.Fill Logical Should absent loci special designations be used
 #' @param Cores Integer How many cores can be used.
 #' @note This function is for internal use only.
-Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
+Tab2GL.wrapper <- function(df,System,HZY.Red,Abs.Fill,Cores) {
 
   # Define data locus columns assuming Locus columns come in pairs
   colnames(df) <- sapply(colnames(df),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
@@ -27,12 +28,24 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
     }
   }
 
+  # Pad Absent Calls for DRBx?
+  if( System=="HLA-") {
+    getCol <- grep("DRB3|DRB4|DRB5",colnames(df))
+    if(length(getCol)>0) {
+      if(Abs.Fill) {
+        df[,getCol] <- sapply(getCol,FUN=function(i) Filler(df[,i], colnames(df)[i], Type="Fill"))
+      } else {
+        df[,getCol] <- sapply(getCol,FUN=function(i) Filler(df[,i], Type="Remove"))
+      }
+    }
+  }
+
   # Run Conversion
   df.list <- lapply(seq(1,nrow(df)), FUN=function(k) df[k,DataCol])
-  GL <- parallel::mclapply(df.list,FUN=Tab2GL,System=System,HZY.Red=HZY.Red,mc.cores=Cores)
+  GL <- parallel::mclapply(df.list,FUN=Tab2GL.Sub,System=System,HZY.Red=HZY.Red,mc.cores=Cores)
   GL <- do.call(rbind,GL)
 
-  if(ncol(GL)==1) { colnames(GL) <- "GL.String" } else if(ncol(GL)==2) { colnames(GL) <- c("GL.String","DRB.HapFlag") }
+  if(ncol(GL)==1) { colnames(GL) <- "GL.String" } else if(ncol(GL)==2) { colnames(GL) <- c("GL.String","DR.HapFlag") }
   GL <- cbind(df[,MiscCol],GL)
 
   return(GL)
@@ -41,13 +54,14 @@ Tab2GL.wrapper <- function(df,System,HZY.Red,Cores) {
 
 #' Genotype List String Condenser
 #'
-#' Condenses column of loci into a GL string
+#' Condenses column of loci into a GL string using "^"
 #' @param x Row of loci to condense
 #' @param System Character Genetic system HLA or KIR
 #' @param HZY.Red Logical Should homozygote genotypes be a single allele for non-DRB345.
 #' @note This function is for internal use only.
-Tab2GL <- function(x,System,HZY.Red) {
+Tab2GL.Sub <- function(x,System,HZY.Red) {
 
+  # Identify Loci in data and for HLA-DRB1 expected DRB345 Loci
   x <- x[which(x!="")]
   colnames(x) <- sapply(colnames(x),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
   Loci <- unique(colnames(x))
@@ -60,42 +74,65 @@ Tab2GL <- function(x,System,HZY.Red) {
   # Append Locus to ambiguous Allele/Allele calls
   x[] <- sapply(x,Format.Allele,Type="on")
 
-  GLS <- NULL ; if(System=="HLA-") { DRB345.Flag <- NULL }
   # Condense Alleles (+)
-  for(i in Loci) {
-
-    Alleles <- as.character(x[,grep(i,colnames(x))])
-    A1 <- Alleles[1] ; A2 <- Alleles[2]
-
-    if(System=="HLA-") {
-      if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
-          if( sum(grepl("DRB1",x))>0 ) {
-            DRB.GTYPE <- DRB345.Check.Zygosity(i, x[grep("DRB",x)] )
-            DRB.GTYPE[grepl("\\^",DRB.GTYPE)] <- NA
-            A1 <- DRB.GTYPE[,'Locus_1'] ; A2 <- DRB.GTYPE[,'Locus_2'] ; Alleles <- c(A1,A2)
-            if(DRB.GTYPE$Flag) {
-              # DRB345 is not consistent
-              if( as.logical(DRB.GTYPE[,'Flag']) ) { DRB345.Flag <- c(DRB345.Flag,i) }
-            }
-            # DRB345 but no DRB1 (ZYgosity Check Not Determined)
-          } else if( sum(grepl(grep("DRB",x)))>0 ) { DRB345.Flag <- "ND" }
-      } # fi DRB345
-    } # fi HLA
-
-    if( is.na(A1) || is.na(A2) ) {
-      GLS <- c(GLS,Alleles)
-    } else if( HZY.Red && A1==A2 ) { GLS <- c(GLS,Alleles[1])
-    } else { GLS <- c(GLS,paste(Alleles,collapse="+"))  }
-
-  } # fi Loci Loop
+  GLS <- lapply(Loci,Tab2GL.Loci,Genotype=x,System=System,HZY.Red=HZY.Red)
+  GLS <- do.call(rbind,GLS)
+  GLS[,1] <- sapply(GLS[,1],FUN=gsub,pattern="NA+NA|\\+NA|NA\\+",replacement="")
+  GLS[GLS=="OK"] <- ""
 
   # Condense Chromosomes (^)
-  GLS <- as.character(na.omit(GLS))
-  GLS <- paste(GLS,collapse="^")
+  Out <- paste(as.character(na.omit(GLS[,1])),collapse="^")
+  Flag <- paste(GLS[which(GLS[,2]!=""),2],collapse="")
+
+  Out <- c(Out,Flag)
+
+}
+
+#' Locus Condenser for Tab2GL
+#'
+#' Condenses alleles calls of a single locus string using "+"
+#' @param Locus Locus to condense
+#' @param Genotype Row of loci to condense
+#' @param System Character Genetic system HLA or KIR
+#' @param HZY.Red Logical Should homozygote genotypes be a single allele for non-DRB345.
+#' @note This function is for internal use only.
+Tab2GL.Loci <- function(Locus,Genotype,System,HZY.Red) {
+
+  Alleles <- Genotype[grep(Locus,Genotype)]
 
   if(System=="HLA-") {
-    DRB.HapFlag <- ifelse(!is.null(DRB345.Flag), paste(unlist(DRB345.Flag),collapse=",") , "")
-    Out <- c(GLS,DRB.HapFlag)
+    if(Locus=="HLA-DRB3" || Locus=="HLA-DRB4" || Locus=="HLA-DRB5") {
+      if( sum(grepl("DRB1",Genotype))>0 ) {
+        # Assumptions for DRB345
+        DRB.GTYPE <- DRB345.Check.Zygosity(Locus, Genotype[grep("DRB",Genotype)] )
+        DRB.GTYPE[1,grepl("\\^",DRB.GTYPE)] <- NA
+        Alleles <- c(DRB.GTYPE[,'Locus_1'],DRB.GTYPE[,'Locus_2'])
+        # for inconsistent DR haplotypes
+        DRB345.Flag <- DRB.GTYPE[,'Flag']
+      } else if( sum(grepl(grep("DRB",Genotype)))>0 ) {
+        # DRB345 but no DRB1 (ZYgosity Check Not Determined)
+        DRB345.Flag <- "DRB345_ND"
+      } # fi no DRB1 but DRB345
+    } else { DRB345.Flag <- NULL } # fi DRB345
+  } # fi HLA
+
+
+  if( sum(is.na(Alleles))==0 && HZY.Red && Alleles[1]==Alleles[2] ) {
+
+    # Homozygous Reduction
+    GLS <- Alleles[1]
+
+  } else {
+
+    # Remove NA Strings and Collapse
+    Alleles <- Alleles[!is.na(Alleles)]
+    GLS <- paste(Alleles,collapse="+")
+
+  }
+
+  if(System=="HLA-") {
+    DR.HapFlag <- ifelse(!is.null(DRB345.Flag), paste(unlist(DRB345.Flag),collapse=",") , "")
+    Out <- c(GLS,DR.HapFlag)
   } else {
     Out <- GLS
   }

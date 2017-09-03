@@ -1,3 +1,9 @@
+BIGDAWG v1.5 (Release date: 2017-08-30) Derek Pappas <dpappas@chori.org>
+====================================================================================
+Changes:
+* Several Bug Fixes
+* Allow for absent HLA-DRB345 to be filled with 00:00 with Abs.Fill parameter
+
 BIGDAWG v1.4 (Release date: 2017-08-30) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:

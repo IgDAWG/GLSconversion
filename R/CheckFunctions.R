@@ -10,13 +10,28 @@
 #' @note This function is for internal use only.
 Check.Params <- function (Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim) {
 
-  if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log.GLS("P.Convert") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log.GLS("P.Output") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( is.na(match(System,c("HLA","KIR"))) ) { Err.Log.GLS("P.System") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.logical(HZY.Red) ) { Err.Log.GLS("P.HZY") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.logical(DRB345.Check) ) { Err.Log.GLS("P.DRB") ; stop("Conversion Stopped.",call.=FALSE) }
-  if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log.GLS("P.Cores") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(Convert,c("GL2Tab","Tab2GL"))) ) { Err.Log.GLS("P.Error","Convert") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(Output,c("R","txt","csv","pypop"))) ) { Err.Log.GLS("P.Error","Output") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( is.na(match(System,c("HLA","KIR"))) ) { Err.Log.GLS("P.Error","System") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.logical(HZY.Red) ) { Err.Log.GLS("P.Error","HZY.Red") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.logical(DRB345.Check) ) { Err.Log.GLS("P.Error","DRB345.Check") ; stop("Conversion Stopped.",call.=FALSE) }
+  if( !is.numeric(Cores.Lim) || !is.integer(Cores.Lim) ) { Err.Log.GLS("P.Error","Cores.Lim") ; stop("Conversion Stopped.",call.=FALSE) }
 
+}
+
+#' Check Cores Parameters
+#'
+#' Check cores limitation for OS compatibility
+#' @param Cores.Lim Integer How many cores can be used.
+Check.Cores <- function(Cores.Lim) {
+  if ( Cores.Lim!=1L ) {
+    Cores.Max <- as.integer( floor( parallel::detectCores() * 0.9) )
+    if(Sys.info()['sysname']=="Windows" && as.numeric(Cores.Lim)>1) {
+      Err.Log.GLS("Windows.Cores") ; stop("Conversion stopped.",call. = F)
+    } else if( Cores.Lim > Cores.Max ) { Cores <- Cores.Max
+    } else { Cores <- Cores.Lim }
+  } else { Cores <- Cores.Lim }
+  return(Cores)
 }
 
 #' Check Data Structure
@@ -36,6 +51,11 @@ Check.Data <- function (Data,Convert) {
     if ( sum(grepl("\\+",Data[,ncol(Data)])) > 0 || sum(grepl("\\^",Data[,ncol(Data)])) > 0 || sum(grepl("\\|",Data[,ncol(Data)])) > 0 ) {
       Err.Log.GLS("Tab.Format") ; stop("Conversion stopped.",call.=F)
     }
+
+    # Check for repeating column names
+    colnames(Data) <- sapply(colnames(Data),FUN=gsub,pattern="\\.1|\\.2|\\_1|\\_2",replacement="")
+    DataCol <- as.numeric(sapply(names(which(table(colnames(Data))==2)), FUN=function(x) grep(x,colnames(Data))))
+    if( length(DataCol) ==0 ) { Err.Log.GLS("Table.Pairs") ; stop("Conversion stopped.",call.=F) }
 
   }
 

@@ -4,9 +4,10 @@
 #' @param df Data frame containing GL strings
 #' @param System Character Genetic system HLA or KIR
 #' @param Strip.Prefix Logical Should System/Locus prefixes be stripped from table data.
+#' @param Abs.Fill Logical Should absent loci special designations be used.
 #' @param Cores Integer How many cores can be used
 #' @note This function is for internal use only
-GL2Tab.wrapper <- function(df,System,Strip.Prefix,Cores) {
+GL2Tab.wrapper <- function(df,System,Strip.Prefix,Abs.Fill,Cores) {
 
   # Data column
   LastCol <- ncol(df)
@@ -14,16 +15,29 @@ GL2Tab.wrapper <- function(df,System,Strip.Prefix,Cores) {
 
   # Run Conversion
   df.list <- strsplit(df[,LastCol],"\\^")
-  Tab <- parallel::mclapply(df.list,FUN=GL2Tab,System=System,mc.cores=Cores)
+  Tab <- parallel::mclapply(df.list,FUN=GL2Tab.Sub,System=System,mc.cores=Cores)
     Loci <- sort(unique(gsub("_1|_2","",unlist(lapply(Tab,colnames)))))
-    Tab.Out <- Build.Matrix(System,Loci)
+    if( sum(grepl('DR.HapFlag',Loci)) > 0 ) { Loci <- Loci[-grep('DR.HapFlag',Loci)] }
+    Order <- Build.Matrix(System,Loci)
 
-  Tab <- parallel::mclapply(Tab,FUN=Format.Tab,Tab.Out=Tab.Out,mc.cores=Cores)
+  Tab <- parallel::mclapply(Tab,FUN=Format.Tab,Order=Order,mc.cores=Cores)
     Tab <- do.call(rbind,Tab)
     Tab[Tab==0] <- ""
     Tab[grepl("\\^",Tab)] <- ""
 
-  # Strip Prefixes
+  # Pad Absent Calls for DRBx?
+  if( System=="HLA-") {
+    getCol <- grep("DRB3|DRB4|DRB5",colnames(Tab))
+    if(length(getCol)>0) {
+      if(Abs.Fill) {
+        Tab[,getCol] <- sapply(getCol,FUN=function(i) Filler(Tab[,i], colnames(Tab)[i], Type="Fill"))
+      } else {
+        Tab[,getCol] <- sapply(getCol,FUN=function(i) Filler(Tab[,i], Type="Remove"))
+      }
+    }
+  }
+
+  # Strip Prefixes?
   if(Strip.Prefix) { Tab[,seq(1,ncol(Tab)-1)] <- apply(Tab[,seq(1,ncol(Tab)-1)],MARGIN=c(1,2),FUN=Stripper) }
 
   # Final Table with Misc Information Appended
@@ -39,7 +53,7 @@ GL2Tab.wrapper <- function(df,System,Strip.Prefix,Cores) {
 #' @param x Character GL string to expand
 #' @param System Character Genetic system HLA or KIR
 #' @note This function is for internal use only.
-GL2Tab <- function(x,System) {
+GL2Tab.Sub <- function(x,System) {
 
   # Break GL String and Remove Any Absent Call Type Strings (00:00)
   Calls <- unlist(sapply(x,FUN=function(x) strsplit(x,"\\+"))) ; names(Calls) <- NULL
@@ -56,7 +70,6 @@ GL2Tab <- function(x,System) {
   Loci <- unique(unlist(lapply(strsplit(Calls,"\\*"),"[",1)))
   if(System=="HLA-") {
     if( sum(grepl("DRB1",Loci))>0 ) { Loci <- c(Loci,DRB345.Exp(Calls[grep("DRB1",Calls)])) }
-    if(sum(grepl("\\^",Loci))>0) { Loci <- Loci[-grep("\\^",Loci)] }
     Loci <- unique(Loci)
   }
   Tab <- Build.Matrix(System,Loci)
@@ -65,37 +78,66 @@ GL2Tab <- function(x,System) {
   invisible(CheckString.Locus(x,Loci))
 
   # Populate table
-  if(System=="HLA-") { DRB345.Flag <- NULL }
-  for(i in Loci) {
+  tmp <- lapply(Loci,GL2Tab.Loci,Genotype=Calls,System=System)
+  tmp.calls <- lapply( seq(length(tmp)), FUN = function(i) cbind(tmp[[i]]['Locus_1'], tmp[[i]]['Locus_2']) )
+  tmp.calls <- do.call(cbind, tmp.calls)
 
-    if(System=="HLA-") {
-      # HLA System
-      if(i=="HLA-DRB3" || i=="HLA-DRB4" || i=="HLA-DRB5") {
-        if( sum(grepl("DRB1",x))>0 ) {
-          # Assumptions for DRB345
-          DRB.GTYPE <- DRB345.Check.Zygosity(i,Calls[grep("DRB",Calls)])
-          Tab[1,grep(i,colnames(Tab))] <- as.character(DRB.GTYPE[1,c('Locus_1','Locus_2')])
-          # for inconsistent DR haplotypes
-          if( as.logical(DRB.GTYPE[,'Flag']) ) { DRB345.Flag <- c(DRB345.Flag,i) }
-        } else {
-          # No DRB1 but DBR345 (ZYgosity Check Not Determined)
-          if( sum(grepl("DRB",x))>0 ) { DRB345.Flag <- "ND" }
-          Tab[1,grep(i,colnames(Tab))] <- Calls[grep(i,Calls)]
-        }
-      } else {
-        # no DRB345
-        Tab[1,grep(i,colnames(Tab))] <- Calls[grep(i,Calls)]
-      } # fi DRB345
-    } else {
-      # non-HLA System
-      Tab[1,grep(i,colnames(Tab))] <- Calls[grep(i,Calls)]
-    }
+  DR.HapFlag <- unlist(lapply(tmp,'[','DR.HapFlag'))
+  DR.HapFlag <-paste(DR.HapFlag[which(DR.HapFlag!="")],collapse=",")
 
-  if(System=="HLA-") { Tab[1,'DRB.HapFlag'] <- ifelse(!is.null(DRB345.Flag), paste(unlist(DRB345.Flag),collapse=",") , "") }
-
-  }# fi Loci Loop
+  Tab[1,] <- cbind(tmp.calls,DR.HapFlag)
 
   return(Tab)
 
 }
 
+#' Locus Ordering for GL2Tab
+#'
+#' Orders Locus Calls
+#' @param Locus Locus to condense
+#' @param Genotype Row of loci to condense
+#' @param System Character Genetic system HLA or KIR
+#' @note This function is for internal use only.
+GL2Tab.Loci <- function(Locus,Genotype,System) {
+
+  Alleles <- Genotype[grep(Locus,Genotype)]
+
+  if( length(Alleles) == 1 && System=="HLA-" ) {
+   if( Locus!="HLA-DRB3" || Locus!="HLA-DRB4" || Locus!="HLA-DRB5" ) {
+    # Homozygous Assumption for HLA non-DRB345
+    Alleles <- c(Alleles,Alleles)
+   }
+  } else if ( length(Alleles) == 1 ) {
+    Alleles <- c(Alleles,"")
+  } else if ( length(Alleles) == 0 ) {
+    Alleles <- c("","")
+  }
+  names(Alleles) <- c('Locus_1','Locus_2')
+
+  if(System=="HLA-") {
+    if(Locus=="HLA-DRB3" || Locus=="HLA-DRB4" || Locus=="HLA-DRB5") {
+      if( sum(grepl("DRB1",Genotype))>0 ) {
+        # Assumptions for DRB345
+        DRB.GTYPE <- DRB345.Check.Zygosity(Locus,Genotype[grep("DRB",Genotype)])
+        DRB.GTYPE[1,grepl("\\^",DRB.GTYPE)] <- ""
+        Alleles[] <- c(DRB.GTYPE[,'Locus_1'],DRB.GTYPE[,'Locus_2'])
+        # for inconsistent DR haplotypes
+        DRB345.Flag <- DRB.GTYPE[,'Flag']
+      } else {
+        # No DRB1 but DBR345 (ZYgosity Check Not Determined)
+        DRB345.Flag <- "DRB345_ND"
+      } # fi DRB1
+     } else { DRB345.Flag <- NULL } # fi DRB345
+    } # fi HLA
+
+  if(System=="HLA-") {
+    DR.HapFlag <- ifelse(!is.null(DRB345.Flag), paste(unlist(DRB345.Flag),collapse=",") , "")
+    Out <- c(Alleles,DR.HapFlag)
+    names(Out)[length(Out)] <- "DR.HapFlag"
+  } else {
+    Out <- Alleles
+  }
+
+ return(Out)
+
+}
