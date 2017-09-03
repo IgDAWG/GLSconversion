@@ -34,7 +34,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   df[] <- lapply(df, as.character)
   df[is.na(df)] <- ""
 
-  # Check Data Structure/Formatting and Ab
+  # Check Data Structure/Formatting
   Check.Data(df,Convert)
 
   # Run Data Conversion
