@@ -1,7 +1,7 @@
 BIGDAWG v1.5.1 (Release date: 2017-09-04) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
-* Bug fix on read in for columns names containing hyphens from the HLA loci (HLA-)
+* Bug fix on read in for column names containing hyphens from the HLA loci (HLA-)
 
 BIGDAWG v1.5 (Release date: 2017-09-03) Derek Pappas <dpappas@chori.org>
 ====================================================================================
