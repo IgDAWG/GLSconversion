@@ -28,6 +28,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
   if( is.character(Data) ) {
     if( file.exists(Data) ) {
       df <- read.table(file=Data,header=T,sep="\t", stringsAsFactors=FALSE, fill=T, comment.char = "#", strip.white=T, blank.lines.skip=T, colClasses="character")
+      colnames(df) <- gsub("HLA.","HLA-",colnames(df))
       fileName <- getName(Data)
     } else { Err.Log.GLS("File.Error",Data) ; stop("Conversion Stopped.",call.=FALSE) }
   } else { df <- Data ; fileName <- "Converted" }
