@@ -43,7 +43,7 @@ GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB3
          GL2Tab = { data.out <- GL2Tab.wrapper(df,System,Strip.Prefix,Abs.Fill,Cores) } ,
          Tab2GL = { data.out <- Tab2GL.wrapper(df,System,HZY.Red,Abs.Fill,Cores) } )
 
-  # Output DRB.HapFlag for HLA data
+  # Output DR.HapFlag for HLA data
   if( System=="HLA-" && !DRB345.Check ) { data.out <- data.out[,-grep('DR.HapFlag',colnames(data.out))]  }
 
   # File Name Ouput Options
