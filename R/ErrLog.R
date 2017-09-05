@@ -11,8 +11,7 @@ Err.Log.GLS <- function (x, y=NULL, z=NULL) {
   switch(x,
 
          #Parameters
-         Data.Missing = { Error <- "\nNo 'Data' specified. This parament is not optional. Please see vignette." },
-         Convert.Missing = { Error <- "\nNo 'Convert' specified. This parament is not optional. Please see vignette."},
+         P.Missing = { Error <- paste("\nNo ",y," specified. This parameter is not optional. Please see vignette.",sep="") },
          P.Error = { Error <- paste("\nInvalid ",y," parameter. Please see vignette.",sep="") },
          Windows.Cores = { Error <- "\nYou have exceed the maximum allowable cores for Windows. Please see vignette." },
 

@@ -13,8 +13,8 @@
 GLSconvert <- function(Data,Convert,Output="txt",System="HLA",HZY.Red=FALSE,DRB345.Check=FALSE,Strip.Prefix=TRUE,Abs.Fill=FALSE,Cores.Lim=1L) {
 
   # Check Parameters
-  if(missing(Data)) { Err.Log.GLS("Data.Missing") ; stop("Conversion Stopped.",call.=FALSE) }
-  if(missing(Convert)) { Err.Log.GLS("Convert.Missing") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(missing(Data)) { Err.Log.GLS("P.Missing","Data") ; stop("Conversion Stopped.",call.=FALSE) }
+  if(missing(Convert)) { Err.Log.GLS("P.Missing","Convert") ; stop("Conversion Stopped.",call.=FALSE) }
   Check.Params(Convert,Output,System,HZY.Red,DRB345.Check,Cores.Lim)
 
   # MultiCore Limitations

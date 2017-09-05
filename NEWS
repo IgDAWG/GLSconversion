@@ -1,29 +1,29 @@
 BIGDAWG v1.5.1 (Release date: 2017-09-04) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
-* Bug fix on read in for column names containing hyphens from the HLA loci (e.g., HLA-A)
+* Bug fix on read in for column names containing hyphens from the HLA loci (e.g., HLA-A).
 
 BIGDAWG v1.5 (Release date: 2017-09-03) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
-* Several Bug Fixes
-* Allow for absent HLA-DRB345 to be filled with 00:00 with Abs.Fill parameter
+* Several Bug Fixes.
+* Allow for absent HLA-DRB345 to be filled with 00:00 with Abs.Fill parameter.
 
 BIGDAWG v1.4 (Release date: 2017-08-30) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
-* Bug Fixes
-* Allow for System/Locus prefix stripping using Strip.Prefix parameter
+* Bug Fixes.
+* Allow for System/Locus prefix stripping using Strip.Prefix parameter.
 
 BIGDAWG v1.3 (Release date: 2017-08-28) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
-* Bug Fixes
+* Bug Fixes.
 * Allow for 00:00 designation for missing alleles due to structural variation.
 
 BIGDAWG v1.2.2 (Release date: 2017-08-28) Derek Pappas <dpappas@chori.org>
 ====================================================================================
 Changes:
 * Added data structure consistency checks prior to running conversion.
-* Code re-ogranization for clarity
+* Code re-ogranization for clarity.
 * News file introduced.
